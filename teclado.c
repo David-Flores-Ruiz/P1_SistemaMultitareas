@@ -1,13 +1,15 @@
 /*
- * teclado.c
- *
- *  Created on: 1 oct 2019
- *      Author: pacas
+ * @file:			Teclado.c
+ * @company:		ITESO
+ * @Engineer Team:	D.F.R. / R.G.P.
  */
+
+#include <Teclado.h>
 #include "MK64F12.h"
 #include "GPIO.h"
 #include "RGB.h"
 #include "bits.h"
+
 typedef enum {
 	UNO,	DOS,	TRES,	 A,
 	CUATRO,	CINCO,	SEIS, 	 B,
@@ -15,7 +17,7 @@ typedef enum {
 	STAR,	CERO,	CAT,	 D,
 } Key_name_t;
 
-
+ 
 int8_t TECLADO_read_KEY(gpio_port_name_t port_name)
 {
 	uint32_t PTD_0 = 0;	//	--- LSB
@@ -94,28 +96,6 @@ int8_t TECLADO_read_KEY(gpio_port_name_t port_name)
 	return(tecla_presionada);
 }
 
-void TECLADO_init(void){
-	/**	Configurar el Clock Gating de los perifericos GPIO a utilizar */
-	GPIO_clock_gating( GPIO_D);	// Leer teclado Matricial
-	GPIO_clock_gating( GPIO_C); // Interrupción DataAvailable (Keyboard)
-	/********************************************************************/
-	gpio_pin_control_register_t input_config = GPIO_MUX1;		// 100 de GPIO
-	/********************************************************************************************/
-		/** INPUT: Configurar como GPIO + como entrada */
-		GPIO_pin_control_register( GPIO_D, bit_0,  &input_config );  // PTD	  - pin  0  = GPIO
-		GPIO_pin_control_register( GPIO_D, bit_1,  &input_config );  // PTD	  - pin  1  = GPIO
-		GPIO_pin_control_register( GPIO_D, bit_2,  &input_config );  // PTD	  - pin  2  = GPIO
-		GPIO_pin_control_register( GPIO_D, bit_3,  &input_config );  // PTD	  - pin  3  = GPIO
-		GPIO_pin_control_register( GPIO_C, bit_4,  &input_config );   // PTA	  - pin 0  = GPIO
-
-		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_0);			// input para "A" LSB
-		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_1);			// input para "B"
-		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_2);			// input para "C"
-		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_3);			// input para "D" MSB
-		GPIO_data_direction_pin(GPIO_C,GPIO_INPUT, bit_4);			 // input para DataAvailable (Interrupcion)
-	/********************************************************************************************/
 
 
-
-}
 
