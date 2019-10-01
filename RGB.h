@@ -76,6 +76,7 @@ uint8_t apagar_LED(color_OFF color_RGB);
  	 \return void
  */
 void delay(uint16_t delay);
+void RGB_init(void);
 
 
 #endif /* RGB_H_ */
