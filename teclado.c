@@ -1,13 +1,15 @@
 /*
- * teclado.c
- *
- *  Created on: 1 oct 2019
- *      Author: pacas
+ * @file:			Teclado.c
+ * @company:		ITESO
+ * @Engineer Team:	D.F.R. / R.G.P.
  */
+
+#include <Teclado.h>
 #include "MK64F12.h"
 #include "GPIO.h"
 #include "RGB.h"
 #include "bits.h"
+
 typedef enum {
 	UNO,	DOS,	TRES,	 A,
 	CUATRO,	CINCO,	SEIS, 	 B,
@@ -93,7 +95,6 @@ int8_t TECLADO_read_KEY(gpio_port_name_t port_name)
 		}//end switch (total_input)
 	return(tecla_presionada);
 }
-
 void TECLADO_init(void){
 	/**	Configurar el Clock Gating de los perifericos GPIO a utilizar */
 	GPIO_clock_gating( GPIO_D);	// Leer teclado Matricial
@@ -118,4 +119,7 @@ void TECLADO_init(void){
 
 
 }
+
+
+
 
