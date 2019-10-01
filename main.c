@@ -10,6 +10,8 @@
 #include "GPIO.h"
 #include "Bits.h"
 #include "RGB.h"
+#include "Teclado.h"
+
 int main(void) {
 
 /********************************************************************************************/
@@ -29,7 +31,7 @@ int main(void) {
 	GPIO_pin_control_register( GPIO_D, bit_1,  &input_config );  // PTD	  - pin  1  = GPIO
 	GPIO_pin_control_register( GPIO_D, bit_2,  &input_config );  // PTD	  - pin  2  = GPIO
 	GPIO_pin_control_register( GPIO_D, bit_3,  &input_config );  // PTD	  - pin  3  = GPIO
-	GPIO_pin_control_register( GPIO_C, bit_4,  &input_config );   // PTA	  - pin 0  = GPIO
+	GPIO_pin_control_register( GPIO_C, bit_4,  &input_config );   // PTC	  - pin 4  = GPIO
 
 	GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_0);			// input para "A" LSB
 	GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_1);			// input para "B"
@@ -55,58 +57,18 @@ int main(void) {
 
 	uint32_t PTC_4  = 0;	// Data Available
 
-	uint32_t PTD_0  = 0;	//	--- LSB
-	uint32_t PTD_1  = 0;	//			---	Bits de "ABCD"
-	uint32_t PTD_2  = 0;	//			--- salida del codificador 74c922
-	uint32_t PTD_3  = 0;	//  --- MSB
-	uint32_t total_input = 0;	// "DCBA" puede tener valores de 0 - 15
-
+	int8_t key_press;
 
 	while (1) {
 
-/********************************************************************************************/
-		/** Leer Keyboard: retorna el valor leído del codificador en un nibble de 4 bits */
-		PTC_4 = GPIO_read_pin(GPIO_C, bit_4);	// Leemos el Data Available
-
-		if (PTC_4)
-		{
-			PTD_0 = GPIO_read_pin(GPIO_D, bit_0);	//
-			PTD_1 = GPIO_read_pin(GPIO_D, bit_1); // Tecla codificada
-			PTD_2 = GPIO_read_pin(GPIO_D, bit_2); // en 4 bits
-			PTD_3 = GPIO_read_pin(GPIO_D, bit_3); //
-			total_input = PTD_0 | PTD_1 | PTD_2 | PTD_3;
-/********************************************************************************************/
-			switch (total_input) {
-			case 0:
-				encender_LED(RED_ON);		// Led RED
-				delay(3000);
-				break;
-			case 1:
-				encender_LED(BLUE_ON);		// Led BLUE
-				delay(3000);
-				break;
-			case 2:
-				encender_LED(GREEN_ON);		// Led GREEN
-				delay(3000);
-				break;
-
-			default:
-				encender_LED(RED_ON);
-				encender_LED(BLUE_ON);	// Led WHITE
-				encender_LED(GREEN_ON);
-				delay(3000);
-				break;
-			}		//end switch (total_input)
-			apagar_LED(RGB_OFF);		// Test para debug y ver colores
-			PTC_4  = 0;
-			PTD_0  = 0;
-			PTD_1  = 0;
-			PTD_2  = 0;
-			PTD_3  = 0;
-			total_input = 0;
+		PTC_4 = GPIO_read_pin(GPIO_C, bit_4);	//	Data available
+		if (PTC_4){
+			key_press = TECLADO_read_KEY(GPIO_D);// Leemos el teclado matricial
+			printf("tecla: %c\n", key_press);
 		}
-	}//end while(1)
 
+
+	}//end while(1)
 
     return 0 ;
 }
