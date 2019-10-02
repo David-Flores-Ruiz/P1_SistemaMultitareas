@@ -14,7 +14,6 @@
 #include "Bits.h"
 
 int main(void) {
-
 	/********************************************************************************************/
 	/**	Configurar el Clock Gating de los perifericos GPIO a utilizar */
 	RGB_init();
@@ -25,17 +24,16 @@ int main(void) {
 	 * 7 8 9 C
 	 * * 0 # D
 	 */
-
 	uint32_t PTC_4 = 0;	// Data Available
-
-	int8_t key_press;
-
+	uint32_t pasword_correcto_o_falso = 0;
 	while (1) {
+		write_pasword();//Se llena un arreglo de 4 digitos pasword_user VARIABLE GLOBAL?
+		pasword_correcto_o_falso=compara_pasword(GENERADOR_SENAL);//Retorna un 1 en caso de contraseña correcta
 
-		PTC_4 = GPIO_read_pin(GPIO_C, bit_4);	//	Data available
-		if (PTC_4) {
-			key_press = TECLADO_read_KEY(GPIO_D);// Leemos el teclado matricial
-			printf("tecla: %c\n", key_press);
+		if(pasword_correcto_o_falso==1){
+			encender_LED(GREEN_ON);
+		}else{
+			encender_LED(RED_ON);
 		}
 	}	//end while(1)
 

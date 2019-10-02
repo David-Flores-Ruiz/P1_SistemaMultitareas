@@ -12,7 +12,11 @@
 #include "MK64F12.h"
 #include "stdint.h"
 #include "GPIO.h"
-
+typedef enum {
+	CLAVE_MAESTRA,
+	CONTROL_MOTOR,
+	GENERADOR_SENAL,
+} proceso;
 /*	Keyboard:
 	 *	 	1  2  3  A
 	 *	 	4  5  6  B
@@ -28,10 +32,13 @@
  	 \param[in]  El GPIO D
  	 \return 	 char
  */
+
 int8_t TECLADO_read_KEY(gpio_port_name_t port_name);
 /************************************************************************************/
 
 void TECLADO_init(void);
+uint8_t compara_pasword(proceso accion);
+void write_pasword(void);
 
 
 

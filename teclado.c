@@ -17,7 +17,7 @@ typedef enum {
 	STAR,	CERO,	CAT,	 D,
 } Key_name_t;
 
-
+int8_t pasword_user[4];
 int8_t TECLADO_read_KEY(gpio_port_name_t port_name)
 {
 	uint32_t PTD_0 = 0;	//	--- LSB
@@ -115,7 +115,65 @@ void TECLADO_init(void){
 		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_3);			// input para "D" MSB
 		GPIO_data_direction_pin(GPIO_C,GPIO_INPUT, bit_4);			 // input para DataAvailable (Interrupcion)
 	/********************************************************************************************/
+}
+uint8_t compara_pasword(proceso accion){
+	uint32_t contador = 0;
+	uint32_t comprobacion = 0;
+	uint8_t pasword_inicializacion[4] = {'1','2','3','4'};
+	uint8_t pasword_control_motor[4] = {'4','5','6','7'};
+	uint8_t pasword_generador_senal[4] = {'7','8','9','0'};
+	switch(accion){
+	case CLAVE_MAESTRA:
+		for (contador=0;contador<=4;contador++){
+			if(pasword_inicializacion[contador]==pasword_user[contador]){
+				comprobacion++;
+			}
+		}
+		if(comprobacion==4){
+			return(TRUE);
+		}else{
+			return(FALSE);
+		 	 }
+		break;
+	case CONTROL_MOTOR:
 
+		for (contador=0;contador<=4;contador++){
+			if(pasword_control_motor[contador]==pasword_user[contador]){
+				comprobacion++;
+			}
+		}
+		if(comprobacion==4){
+			return(TRUE);
+		}else{
+			return(FALSE);
+			}
+		break;
+	case GENERADOR_SENAL:
+		for (contador=0;contador<=4;contador++){
+			if(pasword_generador_senal[contador]==pasword_user[contador]){
+				comprobacion++;
+			}
+		}
+		if(comprobacion==4){
+			return(TRUE);
+		}else{
+			return(FALSE);
+			}
+		break;
+	}//end case
+}
+void write_pasword(void){
+	uint32_t contador = 0;
+	uint32_t PTC_4 = 0;	// Data Available
+	for(contador=0;contador<=3;contador++){
+	PTC_4 = GPIO_read_pin(GPIO_C, bit_4);	//	Data available
+	if (PTC_4) {
+		pasword_user[contador] = TECLADO_read_KEY(GPIO_D);
+		printf("tecla: %c\n", pasword_user[contador]);
+		}else{
+			contador--;
+		}
+	};
 
 
 }
