@@ -9,9 +9,9 @@
 	\todo
 	    Interrupts are not implemented in this API implementation.
  */
+#include "Teclado.h"
 #include "MK64F12.h"
 #include "GPIO.h"
-#include "Teclado.h"
 #include "bits.h"
 
 static void (*gpio_A_callback)  (void) = 0; // SW3

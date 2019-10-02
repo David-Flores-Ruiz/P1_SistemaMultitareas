@@ -4,9 +4,9 @@
  * @Engineer Team:	D.F.R. / R.G.P.
  */
 
-#include "Teclado.h"
 #include "MK64F12.h"
 #include <stdio.h>
+#include "Teclado.h"
 #include "PIT.h"
 #include "NVIC.h"
 #include "GPIO.h"
