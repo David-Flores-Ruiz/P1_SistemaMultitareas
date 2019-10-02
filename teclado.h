@@ -8,7 +8,7 @@
 #ifndef TECLADO_H_
 #define TECLADO_H_
 #include "MK64F12.h"
-#include "stdint.h"
+#include <stdint.h>
 #include "GPIO.h"
 
 /*	Keyboard:
@@ -17,6 +17,21 @@
 	 * 	 	7  8  9  C
 	 * 	 	*  0  #  D
 */
+
+#define NADA -1
+
+/************************************************************************************/
+/*!
+ 	 \brief:	 Leer la salida del encoder 74c922 del teclado matricial
+
+ 	 \param[in]  El GPIO D
+ 	 \return 	 char
+ */
+void TECLADO_init();
+/************************************************************************************/
+
+
+
 /************************************************************************************/
 /*!
  	 \brief:	 Leer la salida del encoder 74c922 del teclado matricial
@@ -26,8 +41,6 @@
  */
 int8_t TECLADO_read_KEY(gpio_port_name_t port_name);
 /************************************************************************************/
- 
-void TECLADO_init(void);
 
 
 #endif /* TECLADO_H_ */

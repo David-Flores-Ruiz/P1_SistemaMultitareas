@@ -17,7 +17,30 @@ typedef enum {
 	STAR,	CERO,	CAT,	 D,
 } Key_name_t;
 
- 
+void TECLADO_init()
+{
+	/**	Configurar el Clock Gating de los perifericos GPIO a utilizar */
+	GPIO_clock_gating( GPIO_D);	// Leer teclado Matricial
+	GPIO_clock_gating( GPIO_C); // Interrupción DataAvailable (Keyboard)
+	/********************************************************************/
+	gpio_pin_control_register_t input_config = GPIO_MUX1;		// 100 de GPIO
+	/********************************************************************************************/
+		/** INPUT: Configurar como GPIO + como entrada */
+		GPIO_pin_control_register( GPIO_D, bit_0,  &input_config );  // PTD	  - pin  0  = GPIO
+		GPIO_pin_control_register( GPIO_D, bit_1,  &input_config );  // PTD	  - pin  1  = GPIO
+		GPIO_pin_control_register( GPIO_D, bit_2,  &input_config );  // PTD	  - pin  2  = GPIO
+		GPIO_pin_control_register( GPIO_D, bit_3,  &input_config );  // PTD	  - pin  3  = GPIO
+		GPIO_pin_control_register( GPIO_C, bit_4,  &input_config );   // PTA	  - pin 4  = GPIO
+
+		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_0);			// input para "A" LSB
+		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_1);			// input para "B"
+		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_2);			// input para "C"
+		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_3);			// input para "D" MSB
+		GPIO_data_direction_pin(GPIO_C,GPIO_INPUT, bit_4);			 // input para DataAvailable (Interrupcion)
+	/********************************************************************************************/
+}
+
+
 int8_t TECLADO_read_KEY(gpio_port_name_t port_name)
 {
 	uint32_t PTD_0 = 0;	//	--- LSB
@@ -25,7 +48,7 @@ int8_t TECLADO_read_KEY(gpio_port_name_t port_name)
 	uint32_t PTD_2 = 0;	//			--- salida del codificador 74c922
 	uint32_t PTD_3 = 0;	//  --- MSB
 	uint32_t total_input = 0;	// "DCBA" puede tener valores de 0 - 15
-	int8_t tecla_presionada = 0;// Valor de 0 - 15 según la tecla
+	int8_t tecla_presionada = NADA;// Valor de 0 - 15 según la tecla
 	PTD_0 = GPIO_read_pin(port_name, bit_0);	//	"A"
 	PTD_1 = GPIO_read_pin(port_name, bit_1); 	//	"B"
 	PTD_2 = GPIO_read_pin(port_name, bit_2); 	//	"C"
@@ -95,7 +118,5 @@ int8_t TECLADO_read_KEY(gpio_port_name_t port_name)
 		}//end switch (total_input)
 	return(tecla_presionada);
 }
-
-
 
 

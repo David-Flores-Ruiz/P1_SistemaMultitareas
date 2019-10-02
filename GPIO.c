@@ -10,8 +10,15 @@
 	    Interrupts are not implemented in this API implementation.
  */
 #include "MK64F12.h"
-#include <GPIO.h>
-#include <bits.h>
+#include "GPIO.h"
+#include "Teclado.h"
+#include "bits.h"
+
+static void (*gpio_A_callback)  (void) = 0; // SW3
+static void (*gpio_C_callback)  (void) = 0; // SW2
+static void (*gpio_C_callback_2)(void) = 0; // Teclado
+
+static gpio_interrupt_flags_t g_intr_status_flag = {0};
 
 /*! This variable reads the full port	  */
 uint32_t port_readValue;
@@ -19,6 +26,22 @@ uint32_t port_readValue;
 /*! This variable reads the specific pin  */
 uint8_t pin_readValue;
 
+void GPIO_callback_init(gpio_port_name_t port_name,void (*handler)(void))
+{
+	if(GPIO_A == port_name)
+	{
+		gpio_A_callback = handler;	// Inicializa función del SW3
+	}
+	if (GPIO_C == port_name)
+	{
+		if(gpio_C_callback == 0){
+			gpio_C_callback = handler;	// Inicializa función del SW2
+		}
+		if(gpio_C_callback_2 == 0){
+			gpio_C_callback_2 = handler; // Funcion Teclado
+		}
+	}
+}
 
 uint8_t GPIO_clock_gating(gpio_port_name_t port_name)	// f(x) #2		done jlpe! + good perform
 {
@@ -72,6 +95,81 @@ uint8_t GPIO_pin_control_register(gpio_port_name_t port_name, uint8_t pin,
 	return (TRUE);
 }
 
+void PORTA_IRQHandler(void)
+{
+	if(gpio_A_callback)
+	{
+		gpio_A_callback();	// Función del SW3
+	}
+
+	GPIO_clear_interrupt(GPIO_A);
+}
+
+void PORTC_IRQHandler(void)
+{
+
+	if (gpio_C_callback)  		 // F(x) del SW2
+	{
+		if (TECLADO_read_KEY(GPIO_D) == NADA) // ¿La interrupción fue por teclado o por SW2?
+			gpio_C_callback(); 	 // Llamada a función del SW2
+	}
+	else if (gpio_C_callback_2)  // F(x) del Teclado
+			gpio_C_callback_2(); // Llamada del Teclado
+
+	GPIO_clear_interrupt(GPIO_C);
+
+}
+
+void GPIO_clear_interrupt(gpio_port_name_t port_name)
+{
+	switch(port_name)/** Selecting the GPIO for clock enabling*/
+	{
+		case GPIO_A: /** GPIO A is selected*/
+			PORTA->ISFR=0xFFFFFFFF;
+			break;
+		case GPIO_B: /** GPIO B is selected*/
+			PORTB->ISFR=0xFFFFFFFF;
+			break;
+		case GPIO_C: /** GPIO C is selected*/
+			PORTC->ISFR = 0xFFFFFFFF;
+			break;
+		case GPIO_D: /** GPIO D is selected*/
+			PORTD->ISFR=0xFFFFFFFF;
+			break;
+		default: /** GPIO E is selected*/
+			PORTE->ISFR=0xFFFFFFFF;
+			break;
+
+	}// end switch
+}
+
+uint8_t GPIO_get_irq_status(gpio_port_name_t gpio)	// flag SW
+{
+	uint8_t status = 0;
+
+	if(GPIO_A == gpio)
+	{
+		status = g_intr_status_flag.flag_port_a;
+	}
+	else
+	{
+		status = g_intr_status_flag.flag_port_c;
+	}
+
+	return(status);
+}
+
+void GPIO_clear_irq_status(gpio_port_name_t gpio)	// flag SW
+{
+	if(GPIO_A == gpio)
+	{
+		g_intr_status_flag.flag_port_a = FALSE;
+	}
+	else
+	{
+		g_intr_status_flag.flag_port_c = FALSE;
+	}
+}
 
 void GPIO_data_direction_port(gpio_port_name_t port_name, gpio_port_direction_t direction)		   // f(x) #4	done!
 {
