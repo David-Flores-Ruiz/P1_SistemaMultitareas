@@ -76,6 +76,14 @@ uint8_t apagar_LED(color_OFF color_RGB);
  	 \return void
  */
 void delay(uint16_t delay);
+/********************************************************************************************/
+/*!
+ 	 \brief
+
+ 	 \param[in]  Valor para gastar tiempo
+ 	 \return void
+ */
+void RGB_init(void);
 
 
 #endif /* RGB_H_ */
