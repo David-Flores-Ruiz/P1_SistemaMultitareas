@@ -28,18 +28,21 @@ uint8_t pin_readValue;
 
 void GPIO_callback_init(gpio_port_name_t port_name,void (*handler)(void))
 {
+	static flag_gpio_C = FALSE;
 	if(GPIO_A == port_name)
 	{
-		gpio_A_callback = handler;	// Inicializa función del SW3
+		if(gpio_A_callback == 0)
+			gpio_A_callback = handler;	// Inicializa función del SW3
 	}
-	if (GPIO_C == port_name)
-	{
-		if(gpio_C_callback == 0){
+	if (GPIO_C == port_name) {
+		if (gpio_C_callback == 0) {
 			gpio_C_callback = handler;	// Inicializa función del SW2
 		}
-		if(gpio_C_callback_2 == 0){
+		if ((gpio_C_callback_2 == 0) && flag_gpio_C) {
 			gpio_C_callback_2 = handler; // Funcion Teclado
 		}
+
+		flag_gpio_C = TRUE;	// Entró al menos una vez
 	}
 }
 
@@ -105,19 +108,21 @@ void PORTA_IRQHandler(void)
 	GPIO_clear_interrupt(GPIO_A);
 }
 
-void PORTC_IRQHandler(void)
-{
+void PORTC_IRQHandler(void) {
+	uint32_t PTC_4 = 0;	// Data Available
+	PTC_4 = GPIO_read_pin(GPIO_C, bit_4);	//	Data available
 
-	if (gpio_C_callback)  		 // F(x) del SW2
+	if (PTC_4)	// ¿La interrupción fue por teclado o por SW2?
 	{
-		if (TECLADO_read_KEY(GPIO_D) == NADA) // ¿La interrupción fue por teclado o por SW2?
-			gpio_C_callback(); 	 // Llamada a función del SW2
-	}
-	else if (gpio_C_callback_2)  // F(x) del Teclado
+		if (gpio_C_callback_2) {
 			gpio_C_callback_2(); // Llamada del Teclado
-
+		}
+	} else {
+		if (gpio_A_callback) {
+			gpio_C_callback(); 	 // Llamada a función del SW2
+		}
+	}
 	GPIO_clear_interrupt(GPIO_C);
-
 }
 
 void GPIO_clear_interrupt(gpio_port_name_t port_name)

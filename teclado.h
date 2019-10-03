@@ -1,15 +1,14 @@
 /*
- * teclado.h
- *
- *  Created on: 1 oct 2019
- *      Author: pacas
+ * @file:			Teclado.h
+ * @company:		ITESO
+ * @Engineer Team:	D.F.R. / R.G.P.
  */
-
 #ifndef TECLADO_H_
 #define TECLADO_H_
 #include "MK64F12.h"
 #include <stdint.h>
 #include "GPIO.h"
+#include "bits.h"
 
 /*	Keyboard:
 	 *	 	1  2  3  A
@@ -18,7 +17,17 @@
 	 * 	 	*  0  #  D
 */
 
+typedef enum {
+	CLAVE_MAESTRA,
+	CONTROL_MOTOR,
+	GENERADOR_SENAL,
+} proceso_t;
+
+
 #define NADA -1
+
+void press_teclado();	// Se presionó una tecla
+
 
 /************************************************************************************/
 /*!
@@ -41,6 +50,11 @@ void TECLADO_init();
  */
 int8_t TECLADO_read_KEY(gpio_port_name_t port_name);
 /************************************************************************************/
+
+boolean_t compara_pasword(proceso_t accion);
+
+void write_pasword(void);
+
 
 
 #endif /* TECLADO_H_ */
