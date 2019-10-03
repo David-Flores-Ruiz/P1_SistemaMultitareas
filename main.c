@@ -10,10 +10,10 @@
 #include "GPIO.h"
 #include "RGB.h"
 #include "Interrupts.h"
-#include "Teclado.h"
 #include "WaveGenerator.h"
 #include "Motor.h"
 #include <stdio.h>	// DEBUG teclado matricial
+#include <teclado.h>
 
 #include "Bits.h"
 

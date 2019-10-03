@@ -9,7 +9,7 @@
 	\todo
 	    Interrupts are not implemented in this API implementation.
  */
-#include "Teclado.h"
+#include <teclado.h>
 #include "MK64F12.h"
 #include "GPIO.h"
 #include "bits.h"

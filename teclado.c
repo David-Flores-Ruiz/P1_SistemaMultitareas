@@ -4,11 +4,11 @@
  * @Engineer Team:	D.F.R. / R.G.P.
  */
 
-#include "Teclado.h"
 #include "MK64F12.h"
 #include "GPIO.h"
 #include "RGB.h"
 #include <stdio.h>	// Hay que quitarla después!
+#include <teclado.h>
 #include "bits.h"
 
 typedef enum {
