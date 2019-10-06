@@ -51,7 +51,7 @@ void PIT_callback_init(PIT_timer_t pit_timer, void (*handler)(void));
 	 \param[in]  delay the amount of time the delay the microcontroller
  	 \return void
  */
-void PIT_delay(PIT_timer_t pit_timer, My_float_pit_t system_clock , My_float_pit_t delay);
+void PIT_delay(PIT_timer_t pit_timer, uint32_t system_clock , uint32_t delay);
 
 /********************************************************************************************/
 /*!
@@ -109,5 +109,5 @@ void PIT_enable(void);
  	 \return 	 void.
  */
 void FRZ_enable(void);		// new
-
+void PIT_init(PIT_timer_t pit_timer);
 #endif /* PIT_H_ */

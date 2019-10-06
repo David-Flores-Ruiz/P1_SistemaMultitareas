@@ -84,6 +84,7 @@ void delay(uint16_t delay);
  	 \return void
  */
 void RGB_init(void);
+void sw_init(void);
 
 
 #endif /* RGB_H_ */

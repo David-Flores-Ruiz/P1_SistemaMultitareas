@@ -201,10 +201,23 @@ void RGB_init(void){
 		GPIO_data_direction_pin(GPIO_B, GPIO_OUTPUT, bit_22); // OUTPUT - 1 RED
 		GPIO_data_direction_pin(GPIO_E, GPIO_OUTPUT, bit_26); // OUTPUT - 1 GREEN
 		GPIO_data_direction_pin(GPIO_B, GPIO_OUTPUT, bit_21); // OUTPUT - 1 BLUE
+
+		gpio_pin_control_register_t pin_control_register_bit_d_0 = GPIO_MUX1;
+		GPIO_clock_gating(GPIO_E);	 						   // Pin 0 del puerto D
+		GPIO_pin_control_register(GPIO_E, bit_24, &pin_control_register_bit_d_0);	// GPIO
+		GPIO_data_direction_pin(GPIO_E,GPIO_OUTPUT, bit_24);
 }
 ////////////////////////////////////////////////////////////////////////////////
 // EOF
 ////////////////////////////////////////////////////////////////////////////////
+void sw_init(void){
+	GPIO_clock_gating( GPIO_A);	// sw3
+	GPIO_clock_gating( GPIO_C);	// sw2
+	gpio_pin_control_register_t sw_config  = GPIO_MUX1 |GPIO_PE | GPIO_PS;	// 103
+	GPIO_pin_control_register( GPIO_A, bit_4,  &sw_config );  // sw3	  - pin  4
+	GPIO_pin_control_register( GPIO_C, bit_6,  &sw_config );  // sw2	  - pin  6
+
+}
 void delay(uint16_t delay) {
 	volatile uint16_t j, i;
 

@@ -13,29 +13,27 @@
 #include "RGB.h"
 #include "Bits.h"
 
+
 int main(void) {
 	/********************************************************************************************/
 	/**	Configurar el Clock Gating de los perifericos GPIO a utilizar */
 	RGB_init();
-	TECLADO_init();
-	/*
-	 * 1 2 3 A
-	 * 4 5 6 B
-	 * 7 8 9 C
-	 * * 0 # D
-	 */
-	uint32_t PTC_4 = 0;	// Data Available
-	uint32_t pasword_correcto_o_falso = 0;
-	while (1) {
-		write_pasword();//Se llena un arreglo de 4 digitos pasword_user VARIABLE GLOBAL?
-		pasword_correcto_o_falso=compara_pasword(GENERADOR_SENAL);//Retorna un 1 en caso de contraseña correcta
+	sw_init();
+	PIT_init(PIT_0);
+	NVIC_enable_interrupt_and_priotity(PIT_CH0_IRQ, PRIORITY_10);
+	NVIC_enable_interrupt_and_priotity(PIT_CH1_IRQ, PRIORITY_10);
+	NVIC_enable_interrupt_and_priotity(PIT_CH2_IRQ, PRIORITY_10);
 
-		if(pasword_correcto_o_falso==1){
-			encender_LED(GREEN_ON);
-		}else{
-			encender_LED(RED_ON);
-		}
-	}	//end while(1)
+
+	while (1) {
+
+
+		Secuencia1();
+
+		//PIT_stop(PIT_0);
+
+
+			}	//end while(1)
 
 	return 0;
 }
