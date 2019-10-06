@@ -205,7 +205,18 @@ void RGB_init(void){
 		gpio_pin_control_register_t pin_control_register_bit_d_0 = GPIO_MUX1;
 		GPIO_clock_gating(GPIO_E);	 						   // Pin 0 del puerto D
 		GPIO_pin_control_register(GPIO_E, bit_24, &pin_control_register_bit_d_0);	// GPIO
+		GPIO_pin_control_register(GPIO_B, bit_2, &pin_control_register_bit_d_0);
+		GPIO_pin_control_register(GPIO_B, bit_3, &pin_control_register_bit_d_0);
+
 		GPIO_data_direction_pin(GPIO_E,GPIO_OUTPUT, bit_24);
+		GPIO_data_direction_pin(GPIO_B,GPIO_OUTPUT, bit_2);
+		GPIO_data_direction_pin(GPIO_B,GPIO_OUTPUT, bit_3);
+
+		GPIO_clear_pin( GPIO_E, bit_24);	// OFF -  Motor
+		GPIO_clear_pin( GPIO_B, bit_2);	// OFF -  LED 1 externo Color Rojo
+		GPIO_clear_pin( GPIO_B, bit_3);	// OFF -  LED 2 externo Color Verde
+
+
 }
 ////////////////////////////////////////////////////////////////////////////////
 // EOF

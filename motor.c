@@ -44,19 +44,21 @@ void Secuencia1(void){
 			uint8_t estado=FALSE;
 			uint16_t delay_value = 0;
 			uint32_t PIT_Ch = 0;
-			PIT_stop(PIT_0);
+
 			output = FSM_Moore[current_state].out;
 					FSM_Moore[current_state].fptrPort(GPIO_E,output);//enciende motor
 			delay_value = FSM_Moore[current_state].wait;//extrae valor de delay
 			SYS_CLOCK = FSM_Moore[current_state].system;
 			PIT_Ch = FSM_Moore[current_state].PIT_N;
-					FSM_Moore[current_state].fptrDelay(PIT_Ch,SYS_CLOCK,delay_value);//espra 1 seg
-				do{
-					estado=	PIT_get_irq_flag_status(PIT_Ch);
-				}while(estado==FALSE);
-					current_state = FSM_Moore[current_state].next[0];
-					PIT_clear_irq_flag_status(PIT_Ch);	// Limpiamos bandera de Hardware
-}
+			FSM_Moore[current_state].fptrDelay(PIT_Ch,SYS_CLOCK,delay_value);//espra 1 seg
+			estado=	PIT_get_irq_flag_status(PIT_Ch);
+			if(estado){
+				current_state = FSM_Moore[current_state].next[0];
+				PIT_clear_irq_flag_status(PIT_Ch);	// Limpiamos bandera de Hardware
+				PIT_stop(PIT_0);
+			}
+	}
+
 void Secuencia2(void){
 	static uint8_t  current_state = SEC_motor1;
 				uint32_t output = 0;
@@ -68,14 +70,13 @@ void Secuencia2(void){
 				FSM_Moore2[current_state].fptrPort(GPIO_E,output);//enciende motor
 				delay_value = FSM_Moore2[current_state].wait;//extrae valor de delay
 				SYS_CLOCK = FSM_Moore2[current_state].system;
-				PIT_Ch = FSM_Moore[current_state].PIT_N;
+				PIT_Ch = FSM_Moore2[current_state].PIT_N;
 				FSM_Moore2[current_state].fptrDelay(PIT_Ch,SYS_CLOCK,delay_value);//espra 1 seg
-				do{
-					estado=	PIT_get_irq_flag_status(PIT_Ch);
-					}while(estado==FALSE);
-				current_state = FSM_Moore2[current_state].next[0];
-				PIT_clear_irq_flag_status(PIT_Ch);
-
+				estado=	PIT_get_irq_flag_status(PIT_Ch);
+				if(estado){
+					current_state = FSM_Moore2[current_state].next[0];
+					PIT_clear_irq_flag_status(PIT_Ch);
+				}
 }
 void Secuencia3(void){
 	GPIO_clear_pin(GPIO_D,bit_0);
