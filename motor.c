@@ -81,9 +81,7 @@ void Secuencia2(void){
 void Secuencia3(void){
 	GPIO_clear_pin(GPIO_D,bit_0);
 }
-void Estado_master(void){
 
-}
 
 
 

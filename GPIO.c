@@ -18,7 +18,7 @@ uint32_t port_readValue;
 
 /*! This variable reads the specific pin  */
 uint8_t pin_readValue;
-
+static gpio_interrupt_flags_t g_intr_status_flag = {0};
 
 uint8_t GPIO_clock_gating(gpio_port_name_t port_name)	// f(x) #2		done jlpe! + good perform
 {
@@ -119,6 +119,28 @@ void GPIO_data_direction_pin (gpio_port_name_t port_name, gpio_port_direction_t 
 	}
 }
 void GPIO_write_port(gpio_port_name_t portName, uint32_t data);// f(x) #6
+void GPIO_clear_interrupt(gpio_port_name_t port_name)
+{
+	switch(port_name)/** Selecting the GPIO for clock enabling*/
+	{
+		case GPIO_A: /** GPIO A is selected*/
+			PORTA->ISFR=0xFFFFFFFF;
+			break;
+		case GPIO_B: /** GPIO B is selected*/
+			PORTB->ISFR=0xFFFFFFFF;
+			break;
+		case GPIO_C: /** GPIO C is selected*/
+			PORTC->ISFR = 0xFFFFFFFF;
+			break;
+		case GPIO_D: /** GPIO D is selected*/
+			PORTD->ISFR=0xFFFFFFFF;
+			break;
+		default: /** GPIO E is selected*/
+			PORTE->ISFR=0xFFFFFFFF;
+			break;
+
+	}// end switch
+}
 uint32_t GPIO_read_port(gpio_port_name_t port_name)			   //(f(x) #7	done!
 {
 	switch (port_name) {
@@ -235,5 +257,39 @@ void GPIO_toogle_pin(gpio_port_name_t port_name, uint8_t pin)  // f(x) #11	done!
 
 		break;
 	}
+}
+uint8_t GPIO_get_irq_status(gpio_port_name_t gpio ){
+	uint8_t status = 0;
 
+		if(GPIO_A == gpio)
+		{
+			status = g_intr_status_flag.flag_port_a;
+		}
+		else
+		{
+			status = g_intr_status_flag.flag_port_c;
+		}
+
+		return(status);
+}
+void PORTC_IRQHandler(void)
+{
+	g_intr_status_flag.flag_port_c = TRUE;	// bandera de SW de SW2
+	GPIO_clear_interrupt(GPIO_C);
+}
+void PORTA_IRQHandler(void)
+{
+	g_intr_status_flag.flag_port_a = TRUE; // bandera de SW de SW3
+	GPIO_clear_interrupt(GPIO_A);
+}
+void GPIO_clear_irq_status(gpio_port_name_t gpio)//apaga bandera de SW
+{
+	if(GPIO_A == gpio)
+	{
+		g_intr_status_flag.flag_port_a = FALSE;
+	}
+	else
+	{
+		g_intr_status_flag.flag_port_c = FALSE;
+	}
 }

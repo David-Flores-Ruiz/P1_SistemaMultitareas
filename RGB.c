@@ -190,7 +190,7 @@ void RGB_init(void){
 	gpio_pin_control_register_t led_config   = GPIO_MUX1;	// 100 de GPIO
 	/** OUTPUT: Configurar como LED RGB (GPIO) + safe value + como output */
 
-	GPIO_pin_control_register( GPIO_B, bit_21, &led_config);  // ledBlue  - pin 21 GPIO
+	    GPIO_pin_control_register( GPIO_B, bit_21, &led_config);  // ledBlue  - pin 21 GPIO
 		GPIO_pin_control_register( GPIO_B, bit_22, &led_config);  // ledRed   - pin 22 GPIO
 		GPIO_pin_control_register( GPIO_E, bit_26, &led_config);  // ledGreen - pin 26 GPIO
 
@@ -224,9 +224,13 @@ void RGB_init(void){
 void sw_init(void){
 	GPIO_clock_gating( GPIO_A);	// sw3
 	GPIO_clock_gating( GPIO_C);	// sw2
-	gpio_pin_control_register_t sw_config  = GPIO_MUX1 |GPIO_PE | GPIO_PS;	// 103
+	gpio_pin_control_register_t sw_config  = GPIO_MUX1|GPIO_PE|GPIO_PS|INTR_FALLING_EDGE;	// 103
 	GPIO_pin_control_register( GPIO_A, bit_4,  &sw_config );  // sw3	  - pin  4
 	GPIO_pin_control_register( GPIO_C, bit_6,  &sw_config );  // sw2	  - pin  6
+
+	GPIO_data_direction_pin(GPIO_A,GPIO_INPUT, bit_4);
+	GPIO_data_direction_pin(GPIO_C,GPIO_INPUT, bit_6);
+
 
 }
 void delay(uint16_t delay) {
