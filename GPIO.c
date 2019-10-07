@@ -290,6 +290,6 @@ void GPIO_clear_irq_status(gpio_port_name_t gpio)//apaga bandera de SW
 	}
 	else
 	{
-		g_intr_status_flag.flag_port_c = FALSE;
+	g_intr_status_flag.flag_port_c = FALSE;
 	}
 }

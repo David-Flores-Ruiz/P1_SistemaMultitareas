@@ -54,7 +54,8 @@ void Secuencia1(void){
 			estado=	PIT_get_irq_flag_status(PIT_Ch);
 			if(estado){
 				current_state = FSM_Moore[current_state].next[0];
-				PIT_clear_irq_flag_status(PIT_Ch);	// Limpiamos bandera de Hardware
+				//PIT_clear_irq_flag_status(PIT_Ch);
+				PIT_clear_irq_flag_status(PIT_Ch);	// Limpiamos bandera de Software
 				PIT_stop(PIT_0);
 			}
 	}
@@ -79,7 +80,7 @@ void Secuencia2(void){
 				}
 }
 void Secuencia3(void){
-	GPIO_clear_pin(GPIO_D,bit_0);
+	GPIO_clear_pin(GPIO_E,bit_24);
 }
 
 
