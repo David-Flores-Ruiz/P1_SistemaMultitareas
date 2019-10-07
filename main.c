@@ -47,22 +47,30 @@ int main(void) {
 		{
 
 			void(*fptrSecuancia)(void);//out
+			uint32_t BIT_LED_AZUL;
+			uint32_t BIT_LED_NARANJA;
+			void(*fptrSET)( gpio_port_name_t , bit_t dato );//set
+			void(*fptrCLEAR)( gpio_port_name_t , bit_t dato );//set
 
-			//uint32_t gpio;
 			//void (*fptrget_status)(gpio_port_name_t  );//pit delay
 			uint8_t next[2];
 		}State_master;
 		const State_master FSM_Moore_motor[3]=
 				{
-						{Secuencia1,{SEC2,SEC1}},
-						{Secuencia2,{SEC3,SEC2}},
-						{Secuencia3,{SEC1,SEC3}},
+						{Secuencia1,bit_2,bit_3,GPIO_set_pin,GPIO_clear_pin,{SEC2,SEC1}},
+						{Secuencia2,bit_2,bit_3,GPIO_clear_pin,GPIO_set_pin,{SEC3,SEC2}},
+						{Secuencia3,bit_2,bit_3,GPIO_clear_pin,GPIO_clear_pin,{SEC1,SEC3}},
 				};
 	while (1) {
 		static uint8_t  current_state = SEC3;
-
+			   uint8_t output_PTB2 = 0;
+			   uint8_t output_PTB3 = 0;
 				uint32_t status = 0;
 			FSM_Moore_motor[current_state].fptrSecuancia();
+			output_PTB2=FSM_Moore_motor[current_state].BIT_LED_AZUL;
+			output_PTB3=FSM_Moore_motor[current_state].BIT_LED_NARANJA;
+			FSM_Moore_motor[current_state].fptrSET(GPIO_B,output_PTB2);
+			FSM_Moore_motor[current_state].fptrCLEAR(GPIO_B,output_PTB3);
 			status=GPIO_get_irq_status(GPIO_C);
 			if(status){
 			current_state = FSM_Moore_motor[current_state].next[0];//en vez de cero puede ser sw;
