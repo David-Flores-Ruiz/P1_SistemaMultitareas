@@ -13,7 +13,7 @@
 #define GPIO_H_
 
 
-#include "stdint.h"
+#include <stdint.h>
 
 
 /** Constant that represent the clock enable for GPIO A */
@@ -71,6 +71,18 @@
 /** Sets Interrupt when logic 1.*/
 #define INTR_LOGIC1        0x000C0000
 
+#define SW3_INT PORTA_IRQHandler
+#define SW2_KEYBOARD_INT PORTC_IRQHandler
+
+typedef struct
+{
+	uint8_t flag_port_a : 1;
+	uint8_t flag_port_b : 1;
+	uint8_t flag_port_c : 1;
+	uint8_t flag_port_d : 1;
+	uint8_t flag_port_e : 1;
+} gpio_interrupt_flags_t;
+
 
 /*! This definition is used to configure whether a pin is an input or an output*/
 typedef enum {GPIO_INPUT,/*!< Definition to configure a pin as input */
@@ -86,17 +98,19 @@ typedef enum{GPIO_A, /*!< Definition to select GPIO A */
 			 GPIO_E, /*!< Definition to select GPIO E */
 			 GPIO_F  /*!< Definition to select GPIO F */
 			} gpio_port_name_t;
-typedef struct
-			{
-				uint8_t flag_port_a : 1;
-				uint8_t flag_port_b : 1;
-				uint8_t flag_port_c : 1;
-				uint8_t flag_port_d : 1;
-				uint8_t flag_port_e : 1;
-			} gpio_interrupt_flags_t;
+
 /*! This data type is used to configure the pin control register */
 typedef const uint32_t gpio_pin_control_register_t;
 
+/********************************************************************************************/
+// Configuracion para la interrupción de los puertos SW2 SW3 TECLADO
+void GPIO_callback_init(gpio_port_name_t port_name,void (*handler)(void));
+
+void GPIO_clear_irq_status(gpio_port_name_t gpio);	// SW
+
+uint8_t GPIO_get_irq_status(gpio_port_name_t gpio);	// SW
+
+/********************************************************************************************/
 
 /********************************************************************************************/
 /********************************************************************************************/
@@ -108,7 +122,7 @@ typedef const uint32_t gpio_pin_control_register_t;
  	 \return void
  	 \todo Implement a mechanism to clear interrupts by a specific pin.
  */
-void GPIO_clear_interrupt(gpio_port_name_t port_name);	// f(x) #1 // NO IMPLEMENTADA EN .C
+void GPIO_clear_interrupt(gpio_port_name_t port_name);	// HW
 
 /********************************************************************************************/
 /********************************************************************************************/
@@ -220,6 +234,5 @@ void GPIO_clear_pin(gpio_port_name_t port_name, uint8_t pin);	 // f(x) #10
  	 \return void
  */
 void GPIO_toogle_pin(gpio_port_name_t port_name, uint8_t pin);	// f(x) #11
-uint8_t GPIO_get_irq_status(gpio_port_name_t port_name);
-void GPIO_clear_irq_status(gpio_port_name_t gpio);
+
 #endif /* GPIO_H_ */

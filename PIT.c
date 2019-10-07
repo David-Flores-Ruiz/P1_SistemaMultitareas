@@ -130,7 +130,7 @@ void PIT_clear_interrupt(PIT_timer_t pit_timer)	// HARDWARE FLAG
 {
 	PIT->CHANNEL[pit_timer].TFLG = TRUE;	// Borramos bandera de Hardware
 }
-void PIT_init(PIT_timer_t pit_timer){
+void PIT_init(void){
 	PIT_clock_gating();		// Habilita modulo PIT
 	PIT_enable();			// Habilita PIT Timers
 	//PIT_delay(pit_timer, SYSTEM_CLOCK, DELAY);

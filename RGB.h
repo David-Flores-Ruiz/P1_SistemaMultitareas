@@ -33,16 +33,17 @@ typedef enum {
 	RGB_OFF,
 } color_OFF;
 
-/********************************************************************************************/
-/********************************************************************************************/
-/********************************************************************************************/
-/*!
- 	 \brief:   Es la función que hace de DIRECTOR de ORQUESTA para cambiar de ESTADO (Colores)
 
- 	 \param[in]  Void.
- 	 \return 	 Void.
- */
-void fx (void);
+/** Inicializa los pines del LED RGB */
+void RGB_init(void);
+
+
+/** Inicializa los sw2 y sw3 como entrada y Interrupción */
+void sw_init(void);
+
+
+
+
 
 /********************************************************************************************/
 /********************************************************************************************/
@@ -76,15 +77,6 @@ uint8_t apagar_LED(color_OFF color_RGB);
  	 \return void
  */
 void delay(uint16_t delay);
-/********************************************************************************************/
-/*!
- 	 \brief
-
- 	 \param[in]  Valor para gastar tiempo
- 	 \return void
- */
-void RGB_init(void);
-void sw_init(void);
 
 
 #endif /* RGB_H_ */

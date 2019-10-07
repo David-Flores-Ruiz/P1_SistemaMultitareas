@@ -9,7 +9,7 @@
 #define PIT_H_
 
 
-#include "stdint.h"
+#include <stdint.h>
 #include "MK64F12.h"
 
 typedef float My_float_pit_t;
@@ -108,6 +108,6 @@ void PIT_enable(void);
  	 \param[in]  void.
  	 \return 	 void.
  */
-void FRZ_enable(void);		// new
-void PIT_init(PIT_timer_t pit_timer);
+void FRZ_enable(void);
+void PIT_init(void);
 #endif /* PIT_H_ */

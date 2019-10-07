@@ -4,10 +4,11 @@
  * @Engineer Team:	D.F.R. / R.G.P.
  */
 
-#include <Teclado.h>
 #include "MK64F12.h"
 #include "GPIO.h"
 #include "RGB.h"
+#include <stdio.h>	// Hay que quitarla después!
+#include "Teclado.h"
 #include "bits.h"
 
 typedef enum {
@@ -17,7 +18,146 @@ typedef enum {
 	STAR,	CERO,	CAT,	 D,
 } Key_name_t;
 
-int8_t pasword_user[4];
+static int8_t array_claveMAESTRA[4] = { '1', '2', '3', '4' };
+static int8_t array_processA[1] = {'A'};
+static int8_t array_proccesB[1] = {'B'};
+static int8_t array_clave_MOTOR[4]   = { '4', '5', '6', '7' };
+static int8_t array_clave_WAVEGEN[4] = { '7', '8', '9', '0' };
+
+static uint8_t g_flag_press_teclado = FALSE;
+
+void Teclado_set_irq_flagSW(void)
+{
+	g_flag_press_teclado = TRUE;	//** Prende bandera de interrupcion por Software */
+}
+
+void Teclado_clear_irq_flagSW(void)
+{
+	g_flag_press_teclado = FALSE;	//** Apaga bandera de interrupcion por Software  */
+}
+
+uint8_t Teclado_get_irq_status_flagSW(void)
+{
+	uint8_t status = 0;
+	status = g_flag_press_teclado;
+	return (status);
+}
+
+boolean_t TECLADO_comparaClaves(Password_t contrasena, int8_t arrayTeclado[], uint8_t word_width)
+{
+	uint32_t letra = 0;
+	uint32_t letter_success = 0;
+
+	switch (contrasena)
+	{
+		case CLAVE_MAESTRA:
+			for (letra = 0; letra < word_width; letra++) {
+				if (array_claveMAESTRA[letra] == arrayTeclado[letra]) {
+					letter_success++;
+				}
+			}
+
+			if (letter_success == word_width) {
+				return (TRUE);	// Contrasena Clave Maestra es correcta!
+			}
+			else {
+				return (FALSE);
+			}
+
+			break;	// end case CLAVE_MAESTRA
+
+	case PROCESO_A:
+		for (letra = 0; letra <= word_width; letra++) {
+			if (array_processA[letra] == arrayTeclado[letra]) {
+				letter_success++;
+			}
+		}
+
+		if (letter_success == word_width) {
+			return (TRUE);	// Seleccion de Proceso A es correcto!
+		}
+		else {
+			return (FALSE);
+		}
+
+		break;	// end case PROCESO_A
+
+	case PROCESO_B:
+		for (letra = 0; letra <= word_width; letra++) {
+			if (array_proccesB[letra] == arrayTeclado[letra]) {
+				letter_success++;
+			}
+		}
+
+		if (letter_success == word_width) {
+			return (TRUE);	// Seleccion de Proceso B es correcto!
+		}
+		else {
+			return (FALSE);
+		}
+
+		break;	// end case PROCESO_B
+
+	case CLAVE_MOTOR:
+		for (letra = 0; letra <= word_width; letra++) {
+			if (array_clave_MOTOR[letra] == arrayTeclado[letra]) {
+				letter_success++;
+			}
+		}
+
+		if (letter_success == word_width) {
+			return (TRUE);	// Contrasena Clave Motor es correcta!
+		}
+		else {
+			return (FALSE);
+		}
+
+		break;	// end case CLAVE_MOTOR
+
+	case CLAVE_GENERADOR:
+		for (letra = 0; letra <= word_width; letra++) {
+			if (array_clave_WAVEGEN[letra] == arrayTeclado[letra]) {
+				letter_success++;
+			}
+		}
+
+		if (letter_success == word_width) {
+			return (TRUE);	// Contrasena Clave Generador es correcta!
+		}
+		else {
+			return (FALSE);
+		}
+
+		break;	// end case CLAVE_GENERADOR
+	}	//end case
+}
+
+void TECLADO_init()
+{
+	/**	Configurar el Clock Gating de los perifericos GPIO a utilizar */
+	GPIO_clock_gating( GPIO_D);	// Leer teclado Matricial
+	GPIO_clock_gating( GPIO_C); // Interrupción DataAvailable (Keyboard)
+	/********************************************************************/
+	gpio_pin_control_register_t input_config = GPIO_MUX1;		// 100 de GPIO
+	gpio_pin_control_register_t pinINT_config = GPIO_MUX1 | INTR_RISING_EDGE;	// Teclado
+
+	/********************************************************************************************/
+		/** INPUT: Configurar como GPIO + como entrada */
+		GPIO_pin_control_register( GPIO_D, bit_0,  &input_config );  // PTD	  - pin  0  = GPIO
+		GPIO_pin_control_register( GPIO_D, bit_1,  &input_config );  // PTD	  - pin  1  = GPIO
+		GPIO_pin_control_register( GPIO_D, bit_2,  &input_config );  // PTD	  - pin  2  = GPIO
+		GPIO_pin_control_register( GPIO_D, bit_3,  &input_config );  // PTD	  - pin  3  = GPIO
+		GPIO_pin_control_register( GPIO_B, bit_20, &pinINT_config ); // Activa con Posedge
+
+		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_0);			// input para "A" LSB
+		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_1);			// input para "B"
+		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_2);			// input para "C"
+		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_3);			// input para "D" MSB
+		GPIO_data_direction_pin(GPIO_B,GPIO_INPUT, bit_20);			// input para DataAvailable (Interrupcion)
+	/********************************************************************************************/
+}
+
+
 int8_t TECLADO_read_KEY(gpio_port_name_t port_name)
 {
 	uint32_t PTD_0 = 0;	//	--- LSB
@@ -25,7 +165,8 @@ int8_t TECLADO_read_KEY(gpio_port_name_t port_name)
 	uint32_t PTD_2 = 0;	//			--- salida del codificador 74c922
 	uint32_t PTD_3 = 0;	//  --- MSB
 	uint32_t total_input = 0;	// "DCBA" puede tener valores de 0 - 15
-	int8_t tecla_presionada = 0;// Valor de 0 - 15 según la tecla
+	int8_t tecla_presionada = NADA;// Valor de 0 - 15 según la tecla
+
 	PTD_0 = GPIO_read_pin(port_name, bit_0);	//	"A"
 	PTD_1 = GPIO_read_pin(port_name, bit_1); 	//	"B"
 	PTD_2 = GPIO_read_pin(port_name, bit_2); 	//	"C"
@@ -95,89 +236,4 @@ int8_t TECLADO_read_KEY(gpio_port_name_t port_name)
 		}//end switch (total_input)
 	return(tecla_presionada);
 }
-void TECLADO_init(void){
-	/**	Configurar el Clock Gating de los perifericos GPIO a utilizar */
-	GPIO_clock_gating( GPIO_D);	// Leer teclado Matricial
-	GPIO_clock_gating( GPIO_C); // Interrupción DataAvailable (Keyboard)
-	/********************************************************************/
-	gpio_pin_control_register_t input_config = GPIO_MUX1;		// 100 de GPIO
-	/********************************************************************************************/
-		/** INPUT: Configurar como GPIO + como entrada */
-		GPIO_pin_control_register( GPIO_D, bit_0,  &input_config );  // PTD	  - pin  0  = GPIO
-		GPIO_pin_control_register( GPIO_D, bit_1,  &input_config );  // PTD	  - pin  1  = GPIO
-		GPIO_pin_control_register( GPIO_D, bit_2,  &input_config );  // PTD	  - pin  2  = GPIO
-		GPIO_pin_control_register( GPIO_D, bit_3,  &input_config );  // PTD	  - pin  3  = GPIO
-		GPIO_pin_control_register( GPIO_C, bit_4,  &input_config );   // PTA	  - pin 0  = GPIO
-
-		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_0);			// input para "A" LSB
-		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_1);			// input para "B"
-		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_2);			// input para "C"
-		GPIO_data_direction_pin(GPIO_D,GPIO_INPUT, bit_3);			// input para "D" MSB
-		GPIO_data_direction_pin(GPIO_C,GPIO_INPUT, bit_4);			 // input para DataAvailable (Interrupcion)
-	/********************************************************************************************/
-}
-uint8_t compara_pasword(proceso accion){
-	uint32_t contador = 0;
-	uint32_t comprobacion = 0;
-	uint8_t pasword_inicializacion[4] = {'1','2','3','4'};
-	uint8_t pasword_control_motor[4] = {'4','5','6','7'};
-	uint8_t pasword_generador_senal[4] = {'7','8','9','0'};
-	switch(accion){
-	case CLAVE_MAESTRA:
-		for (contador=0;contador<=4;contador++){
-			if(pasword_inicializacion[contador]==pasword_user[contador]){
-				comprobacion++;
-			}
-		}
-		if(comprobacion==4){
-			return(TRUE);
-		}else{
-			return(FALSE);
-		 	 }
-		break;
-	case CONTROL_MOTOR:
-
-		for (contador=0;contador<=4;contador++){
-			if(pasword_control_motor[contador]==pasword_user[contador]){
-				comprobacion++;
-			}
-		}
-		if(comprobacion==4){
-			return(TRUE);
-		}else{
-			return(FALSE);
-			}
-		break;
-	case GENERADOR_SENAL:
-		for (contador=0;contador<=4;contador++){
-			if(pasword_generador_senal[contador]==pasword_user[contador]){
-				comprobacion++;
-			}
-		}
-		if(comprobacion==4){
-			return(TRUE);
-		}else{
-			return(FALSE);
-			}
-		break;
-	}//end case
-}
-void write_pasword(void){
-	uint32_t contador = 0;
-	uint32_t PTC_4 = 0;	// Data Available
-	for(contador=0;contador<=3;contador++){
-	PTC_4 = GPIO_read_pin(GPIO_C, bit_4);	//	Data available
-	if (PTC_4) {
-		pasword_user[contador] = TECLADO_read_KEY(GPIO_D);
-		printf("tecla: %c\n", pasword_user[contador]);
-		}else{
-			contador--;
-		}
-	};
-
-
-}
-
-
-
 

@@ -5,11 +5,12 @@
  *      Author: pacas
  */
 #include "MK64F12.h"
-#include <GPIO.h>
-#include <bits.h>
+#include "GPIO.h"
+#include "bits.h"
 #include "motor.h"
 #include "RGB.h"
 #include "PIT.h"
+
 /*typedef struct
 {
 	uint32_t out;
@@ -21,6 +22,12 @@
 	void (*fptrDelay)(PIT_timer_t ,My_float_pit_t ,My_float_pit_t);//pit delay
 	uint8_t next[4];
 }State;*/
+
+
+
+
+
+
 const State FSM_Moore[4]=
 		{
 				//led azul  funcion escribir  valor delay   estados sig/act
@@ -34,6 +41,12 @@ const State FSM_Moore2[2]=
 				{bit_24 , GPIO_set_pin, DELAY_4,SYSTEM_CLOCK,PIT_0, PIT_delay, {SEC_motor2, SEC_motor1}}, //660 1s encendido
 				{bit_24 , GPIO_clear_pin, DELAY_4,SYSTEM_CLOCK,PIT_0, PIT_delay, {SEC_motor1, SEC_motor2}}, //660 1s encendido
 		};
+const State_master FSM_Moore_motor[3]=
+				{
+						{Secuencia1,bit_2,bit_3,GPIO_set_pin,GPIO_clear_pin,{SEC2,SEC1}},
+						{Secuencia2,bit_2,bit_3,GPIO_clear_pin,GPIO_set_pin,{SEC3,SEC2}},
+						{Secuencia3,bit_2,bit_3,GPIO_clear_pin,GPIO_clear_pin,{SEC1,SEC3}},
+				};
 
 
 
@@ -81,6 +94,22 @@ void Secuencia2(void){
 }
 void Secuencia3(void){
 	GPIO_clear_pin(GPIO_E,bit_24);
+}
+void Motor_secuencia_master(void){
+	static uint8_t  current_state = SEC3;
+				   uint8_t output_PTB2 = 0;
+				   uint8_t output_PTB3 = 0;
+					uint32_t status = 0;
+				FSM_Moore_motor[current_state].fptrSecuancia();
+				output_PTB2=FSM_Moore_motor[current_state].BIT_LED_AZUL;
+				output_PTB3=FSM_Moore_motor[current_state].BIT_LED_NARANJA;
+				FSM_Moore_motor[current_state].fptrSET(GPIO_B,output_PTB2);
+				FSM_Moore_motor[current_state].fptrCLEAR(GPIO_B,output_PTB3);
+				status=GPIO_get_irq_status(GPIO_C);
+				if(status){
+				current_state = FSM_Moore_motor[current_state].next[0];//en vez de cero puede ser sw;
+				GPIO_clear_irq_status(GPIO_C);
+				}
 }
 
 

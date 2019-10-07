@@ -6,19 +6,33 @@
 		i.e., this is the application programming interface (API) for the GPIO peripheral.
 	\author J. Luis Pizano Escalante, luispizano@iteso.mx
 	\date	18/02/2019
-	\todo
 	    Interrupts are not implemented in this API implementation.
  */
+#include "Teclado.h"
 #include "MK64F12.h"
-#include <GPIO.h>
-#include <bits.h>
+#include "GPIO.h"
+#include "bits.h"
+#include <stdio.h>	// DEBUG teclado matricial
+
+static void (*gpio_B_callback)  (void) = 0; // teclado
+
+
+static gpio_interrupt_flags_t g_intr_status_flag = {0};
 
 /*! This variable reads the full port	  */
 uint32_t port_readValue;
 
 /*! This variable reads the specific pin  */
 uint8_t pin_readValue;
-static gpio_interrupt_flags_t g_intr_status_flag = {0};
+
+void GPIO_callback_init(gpio_port_name_t port_name,void (*handler)(void))
+{
+	if(GPIO_B == port_name)
+	{
+		if(gpio_B_callback == 0)
+			gpio_B_callback = handler;	// Inicializa función del Teclado
+	}
+}
 
 uint8_t GPIO_clock_gating(gpio_port_name_t port_name)	// f(x) #2		done jlpe! + good perform
 {
@@ -72,6 +86,73 @@ uint8_t GPIO_pin_control_register(gpio_port_name_t port_name, uint8_t pin,
 	return (TRUE);
 }
 
+void PORTA_IRQHandler(void)
+{
+	g_intr_status_flag.flag_port_a = TRUE; // bandera de SW de SW3
+	GPIO_clear_interrupt(GPIO_A);
+}
+void PORTB_IRQHandler(void)
+{
+	if(gpio_B_callback)
+	{
+		gpio_B_callback();	// Función del teclado
+	}
+
+	GPIO_clear_interrupt(GPIO_B);
+}
+
+void PORTC_IRQHandler(void) {
+
+		g_intr_status_flag.flag_port_c = TRUE;	// bandera de SW de SW2
+		GPIO_clear_interrupt(GPIO_C);
+}
+void GPIO_clear_interrupt(gpio_port_name_t port_name)
+{
+	switch(port_name)/** Selecting the GPIO for clock enabling*/
+	{
+		case GPIO_A: /** GPIO A is selected*/
+			PORTA->ISFR=0xFFFFFFFF;
+			break;
+		case GPIO_B: /** GPIO B is selected*/
+			PORTB->ISFR=0xFFFFFFFF;
+			break;
+		case GPIO_C: /** GPIO C is selected*/
+			PORTC->ISFR = 0xFFFFFFFF;
+			break;
+		case GPIO_D: /** GPIO D is selected*/
+			PORTD->ISFR=0xFFFFFFFF;
+			break;
+		default: /** GPIO E is selected*/
+			PORTE->ISFR=0xFFFFFFFF;
+			break;
+
+	}// end switch
+}
+
+uint8_t GPIO_get_irq_status(gpio_port_name_t gpio)	// flag SW
+{
+	uint8_t status = 0;
+
+	if (GPIO_A == gpio) {
+		status = g_intr_status_flag.flag_port_a;
+	} else {
+		status = g_intr_status_flag.flag_port_c;
+	}
+
+	return (status);
+}
+
+void GPIO_clear_irq_status(gpio_port_name_t gpio)	// flag SW
+{
+	if(GPIO_A == gpio)
+	{
+		g_intr_status_flag.flag_port_a = FALSE;
+	}
+	else
+	{
+		g_intr_status_flag.flag_port_c = FALSE;
+	}
+}
 
 void GPIO_data_direction_port(gpio_port_name_t port_name, gpio_port_direction_t direction)		   // f(x) #4	done!
 {
@@ -119,28 +200,6 @@ void GPIO_data_direction_pin (gpio_port_name_t port_name, gpio_port_direction_t 
 	}
 }
 void GPIO_write_port(gpio_port_name_t portName, uint32_t data);// f(x) #6
-void GPIO_clear_interrupt(gpio_port_name_t port_name)
-{
-	switch(port_name)/** Selecting the GPIO for clock enabling*/
-	{
-		case GPIO_A: /** GPIO A is selected*/
-			PORTA->ISFR=0xFFFFFFFF;
-			break;
-		case GPIO_B: /** GPIO B is selected*/
-			PORTB->ISFR=0xFFFFFFFF;
-			break;
-		case GPIO_C: /** GPIO C is selected*/
-			PORTC->ISFR = 0xFFFFFFFF;
-			break;
-		case GPIO_D: /** GPIO D is selected*/
-			PORTD->ISFR=0xFFFFFFFF;
-			break;
-		default: /** GPIO E is selected*/
-			PORTE->ISFR=0xFFFFFFFF;
-			break;
-
-	}// end switch
-}
 uint32_t GPIO_read_port(gpio_port_name_t port_name)			   //(f(x) #7	done!
 {
 	switch (port_name) {
@@ -257,39 +316,5 @@ void GPIO_toogle_pin(gpio_port_name_t port_name, uint8_t pin)  // f(x) #11	done!
 
 		break;
 	}
-}
-uint8_t GPIO_get_irq_status(gpio_port_name_t gpio ){
-	uint8_t status = 0;
 
-		if(GPIO_A == gpio)
-		{
-			status = g_intr_status_flag.flag_port_a;
-		}
-		else
-		{
-			status = g_intr_status_flag.flag_port_c;
-		}
-
-		return(status);
-}
-void PORTC_IRQHandler(void)
-{
-	g_intr_status_flag.flag_port_c = TRUE;	// bandera de SW de SW2
-	GPIO_clear_interrupt(GPIO_C);
-}
-void PORTA_IRQHandler(void)
-{
-	g_intr_status_flag.flag_port_a = TRUE; // bandera de SW de SW3
-	GPIO_clear_interrupt(GPIO_A);
-}
-void GPIO_clear_irq_status(gpio_port_name_t gpio)//apaga bandera de SW
-{
-	if(GPIO_A == gpio)
-	{
-		g_intr_status_flag.flag_port_a = FALSE;
-	}
-	else
-	{
-	g_intr_status_flag.flag_port_c = FALSE;
-	}
 }
