@@ -9,6 +9,10 @@
 
 #include "MK64F12.h"
 
+#define SYSTEM_CLOCK (21000000U)
+#define Delay_Password 1		 /** Para blink de los leds */
+
+
 typedef enum {
 	waitCLAVE_MAESTRA,
 	waitSELECT_PROCESO,
@@ -32,6 +36,8 @@ typedef struct {
 	uint8_t flag_FSM_GENERADOR :1;
 	uint8_t imparOn_B :1;
 } FSM_flags_t;
+
+void Wait_1_second(); //** Para el blink de los leds */
 
 void FSM_control();	//** Máquina de estados general */
 

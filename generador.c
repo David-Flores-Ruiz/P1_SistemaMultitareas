@@ -7,6 +7,8 @@
 #include "generador.h"
 #include "MK64F12.h"
 #include "RGB.h"
+#include "FSMcontrol.h"
+#include "PIT.h"
 #include "GPIO.h"
 
 #define SQUARE   &FSM_MooreWave[0]
@@ -70,6 +72,29 @@ const StateWave_t FSM_MooreWave[3] = {
 	{ GREEN_ON, DAC_TriangleForm,	{ SQUARE, SENOIDAL, TRIANGLE } }  /* green */
 };
 
+void DAC0_clock_gating( ){
+	/** DAC: Configurar el DAC-12 bits para que inicie sin buffer 		  */
+	SIM->SCGC2 |= SIM_SCGC2_DAC0_MASK;	//SIM_SCGC6_DAC0_MASK;	/** Enable clock DAC0: Bit 9 of SIM_SCGC5 is  set   */
+}
+
+void DAC0_config( ){
+	DAC0->C0 |= DAC_C0_DACEN_MASK; /**  Habilita canal 0 del DAC 		  */
+	DAC0->C0 |= DAC_C0_DACRFS_MASK;/** Voltaje de referencia interno de la k64 */
+	DAC0->C0 |= DAC_C0_LPEN_MASK;  /** Low-Power Mode is selected		  */
+}
+
+void Wait_2ms() {
+	uint8_t estado = FALSE;
+	PIT_delay(PIT_1, SYSTEM_CLOCK, Delay_2ms);	// Corre el PIT
+
+	// FUNCIONA BIEN EN DEBUG
+	do {
+		estado = PIT_get_irq_flag_status(PIT_1);
+	} while (estado == FALSE);
+
+	PIT_clear_irq_flag_status(PIT_1);	// Limpiamos bandera de Software
+	PIT_stop(PIT_1);					// Paramos el PIT
+}
 
 void DAC_FSM_signals(void) {
 	static StateWave_t* current_state = SQUARE;
@@ -77,7 +102,7 @@ void DAC_FSM_signals(void) {
 	uint16_t waveElement = 0;
 	uint8_t statusINT_sw3 = 0;
 	static int8_t sw3_veces = -1;
-	static indexElemento = 0;
+	static uint16_t indexElemento = 0;
 
 	statusINT_sw3 = GPIO_get_irq_status(GPIO_A);
 	if (statusINT_sw3) {
@@ -108,6 +133,7 @@ void DAC_FSM_signals(void) {
 */
 		for(indexElemento = 0; indexElemento<MAX; indexElemento++){
 			waveElement = current_state->wave[indexElemento];
+			Wait_2ms();	//** Delay para tiempo de muestreo */
 			DAC_plot(waveElement);
 		}
 

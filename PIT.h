@@ -25,6 +25,8 @@ typedef struct
 	uint8_t flag_PIT_channel_3 : 1;
 } PIT_interrupt_flags_t;
 
+void PIT_stop(PIT_timer_t pit_timer);
+
 /********************************************************************************************/
 /********************************************************************************************/
 /********************************************************************************************/
@@ -51,7 +53,7 @@ void PIT_callback_init(PIT_timer_t pit_timer, void (*handler)(void));
 	 \param[in]  delay the amount of time the delay the microcontroller
  	 \return void
  */
-void PIT_delay(PIT_timer_t pit_timer, uint32_t system_clock , uint32_t delay);
+void PIT_delay(PIT_timer_t pit_timer, uint32_t system_clock , My_float_pit_t delay);
 
 /********************************************************************************************/
 /*!

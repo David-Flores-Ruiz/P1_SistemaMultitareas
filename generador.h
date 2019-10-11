@@ -11,6 +11,13 @@
 #include "bits.h"
 
 #define MAX 100 //** Completa la onda */
+#define Delay_2ms  0.1		 /** Tiempo de muestreo para generar señales a 5Hz */
+
+void DAC0_clock_gating( );
+
+void DAC0_config( );
+
+void Wait_2ms(); //** Generar señales a 5 Hz */
 
 void DAC_FSM_signals(void);
 

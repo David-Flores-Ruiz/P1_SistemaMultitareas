@@ -39,7 +39,7 @@ void RGB_init(void);
 
 
 /** Inicializa los sw2 y sw3 como entrada y Interrupción */
-void sw_init(void);
+void SW_init(void);
 
 
 
