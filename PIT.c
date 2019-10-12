@@ -52,11 +52,11 @@ void PIT0_IRQHandler(void)							// ESTE ES MI VECTOR DE INTERRUPCIÓN
 	PIT_clear_interrupt(PIT_0);				// Apago interrupción por HW
 }
 
-void PIT1_IRQHandler(void)
-{
-	g_intrPIT_status_flag.flag_PIT_channel_1 = TRUE;// Enciendo bandera por Software
-	PIT_clear_interrupt(PIT_1);				// Apago interrupción por HW
-}
+//void PIT1_IRQHandler(void)
+//{
+//	g_intrPIT_status_flag.flag_PIT_channel_1 = TRUE;// Enciendo bandera por Software
+//	PIT_clear_interrupt(PIT_1);				// Apago interrupción por HW
+//}
 
 void PIT_clock_gating(void)
 {
@@ -73,7 +73,7 @@ void FRZ_enable(void)
 	PIT->MCR |= PIT_MCR_FRZ_MASK;		// bit 0 - FRZ enable Mode Debug
 }
 
-void PIT_delay(PIT_timer_t pit_timer, uint32_t system_clock, My_float_pit_t delay)
+void PIT_delayInteger(PIT_timer_t pit_timer, uint32_t system_clock,uint32_t delay)
 {
 
 	My_float_pit_t clock_PIT;		/*! This variable hold the PIT clock	  	*/
@@ -88,6 +88,23 @@ void PIT_delay(PIT_timer_t pit_timer, uint32_t system_clock, My_float_pit_t dela
 	PIT->CHANNEL[pit_timer].TCTRL |= PIT_TCTRL_TIE_MASK;// set TIE - enable interrupts Timer
 	PIT->CHANNEL[pit_timer].TCTRL |= PIT_TCTRL_TEN_MASK;// set TEN - start Timer
 }
+
+void PIT_delayFloat(PIT_timer_t pit_timer, uint32_t system_clock, My_float_pit_t delay)
+{
+
+	My_float_pit_t clock_PIT;		/*! This variable hold the PIT clock	  	*/
+	My_float_pit_t period_PIT;		/*! This variable hold the PIT period	  	*/
+	uint32_t cycles_number;			/*! This variable is the cycles to spend	*/
+
+	clock_PIT = system_clock / 2;
+	period_PIT = (My_float_pit_t)(1 / clock_PIT);
+
+	cycles_number = (int)(delay / period_PIT);
+	PIT->CHANNEL[pit_timer].LDVAL = cycles_number - 1; /** Load of number of cycles */
+	PIT->CHANNEL[pit_timer].TCTRL |= PIT_TCTRL_TIE_MASK;// set TIE - enable interrupts Timer
+	PIT->CHANNEL[pit_timer].TCTRL |= PIT_TCTRL_TEN_MASK;// set TEN - start Timer
+}
+
 void PIT_stop(PIT_timer_t pit_timer)
 {
 	if (PIT_0 == pit_timer) {
@@ -95,21 +112,21 @@ void PIT_stop(PIT_timer_t pit_timer)
 		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_SHIFT); /** Apaga bit TEN y se deshabilita el timer  */
 		}
 		if (PIT_1 == pit_timer) {
-		PIT->CHANNEL[pit_timer].TCTRL &= PIT_TCTRL_TIE_SHIFT;
-		PIT->CHANNEL[pit_timer].TCTRL &= PIT_TCTRL_TEN_SHIFT;
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TIE_SHIFT);
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_SHIFT);
 
 		}
 		if (PIT_2 == pit_timer) {
-		PIT->CHANNEL[pit_timer].TCTRL &= PIT_TCTRL_TIE_SHIFT;
-		PIT->CHANNEL[pit_timer].TCTRL &= PIT_TCTRL_TEN_SHIFT;
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TIE_SHIFT);
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_SHIFT);
 
 		}
 		if (PIT_3 == pit_timer) {
-		PIT->CHANNEL[pit_timer].TCTRL &= PIT_TCTRL_TIE_SHIFT;
-		PIT->CHANNEL[pit_timer].TCTRL &= PIT_TCTRL_TEN_SHIFT;
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TIE_SHIFT);
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_SHIFT);
 		}
 }
-uint8_t PIT_get_irq_flag_status(PIT_timer_t pit_timer)	// SOFTWARE FLAG
+uint8_t PIT_get_irq_flag_status(PIT_timer_t pit_timer)	// OBTENGO SOFTWARE FLAG
 {
 	uint8_t status = 0;
 
@@ -130,11 +147,20 @@ uint8_t PIT_get_irq_flag_status(PIT_timer_t pit_timer)	// SOFTWARE FLAG
 	return (status);
 }
 
-void PIT_clear_irq_flag_status(PIT_timer_t pit_timer)	// SOFTWARE FLAG
+void PIT_clear_irq_flag_status(PIT_timer_t pit_timer)	// LIMPIO FLAG SOFTWARE
 {
-
-	g_intrPIT_status_flag.flag_PIT_channel_0 = FALSE;		// Apagamos la bandera de HW
-
+	if (PIT_0 == pit_timer) {
+		g_intrPIT_status_flag.flag_PIT_channel_0 = FALSE;		// Apagamos la bandera de HW
+	}
+	if (PIT_1 == pit_timer) {
+		g_intrPIT_status_flag.flag_PIT_channel_1 = FALSE;
+	}
+	if (PIT_2 == pit_timer) {
+		g_intrPIT_status_flag.flag_PIT_channel_2 = FALSE;
+	}
+	if (PIT_3 == pit_timer) {
+		g_intrPIT_status_flag.flag_PIT_channel_3 = FALSE;
+	}
 }
 
 void PIT_clear_interrupt(PIT_timer_t pit_timer)	// HARDWARE FLAG

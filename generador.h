@@ -10,8 +10,8 @@
 #include <stdint.h>
 #include "bits.h"
 
-#define MAX 100 //** Completa la onda */
-#define Delay_2ms  0.1		 /** Tiempo de muestreo para generar señales a 5Hz */
+#define MAX 100 	//** Completa la onda */
+#define Delay_2ms  0.002	 /** Tiempo de muestreo para generar señales a 5Hz */
 
 void DAC0_clock_gating( );
 

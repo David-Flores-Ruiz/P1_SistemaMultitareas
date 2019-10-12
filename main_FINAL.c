@@ -4,18 +4,16 @@
  * @Engineer Team:	D.F.R. / R.G.P.
  */
 
-
 #include "MK64F12.h"
 #include "GPIO.h"
 #include "NVIC.h"
 #include "PIT.h"
 #include "RGB.h"
+#include "bits.h"
 #include "Teclado.h"
 #include "FSMcontrol.h"
-#include "bits.h"
 #include "motor.h"
 #include "generador.h"
-
 
 int main(void) {
 	RGB_init();
@@ -41,9 +39,12 @@ int main(void) {
 
 	uint8_t state_keyPress = 0;
 
-    while(1) {
+    while(1)
+    {
 		state_keyPress = Teclado_get_irq_status_flagSW();
-		if (state_keyPress) {
+
+		if (state_keyPress)
+		{
 			FSM_control();
 			Teclado_clear_irq_flagSW();	// Se apaga bandera de Software
 		}

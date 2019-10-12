@@ -20,25 +20,31 @@ void FSM_motor() {
 	if (g_FSM_status_flags.flag_FSM_MOTOR == TRUE) {
 		Motor_secuencia_master();
 	}
+	if(g_FSM_status_flags.flag_FSM_MOTOR == FALSE) {
+		//Se detiene el motor
+	}
 }
 
 void FSM_generador() {
 	if (g_FSM_status_flags.flag_FSM_GENERADOR == TRUE) {
 		DAC_FSM_signals();
 	}
+	if(g_FSM_status_flags.flag_FSM_GENERADOR == FALSE) {
+		// Se detiene la señal
+	}
 }
 
 void Wait_1_second() {
 	uint8_t estado = FALSE;
-	PIT_delay(PIT_0, SYSTEM_CLOCK, Delay_Password);	// Corre el PIT
+	PIT_delay(PIT_1, SYSTEM_CLOCK, Delay_Password);	// Corre el PIT
 
 	// FUNCIONA BIEN EN DEBUG
 	do {
-		estado = PIT_get_irq_flag_status(PIT_0);
+		estado = PIT_get_irq_flag_status(PIT_1);
 	} while (estado == FALSE);
 
-	PIT_clear_irq_flag_status(PIT_0);	// Limpiamos bandera de Software
-	PIT_stop(PIT_0);					// Paramos el PIT
+	PIT_clear_irq_flag_status(PIT_1);	// Limpiamos bandera de Software
+	PIT_stop(PIT_1);					// Paramos el PIT
 
 
 /*	// FUNCIONA BIEN EN DEBUG PERO NO CORRIENDO TODO EL TIEMPO "F8 sin breakpoints"
@@ -107,22 +113,27 @@ void FSM_control() {
 			g_FSM_status_flags.imparOn_A = !g_FSM_status_flags.imparOn_A;
 			printf("\nClave_4567_motor correcto!");
 
+			readArray[0] = 0;
+			readArray[1] = 0;
+			readArray[2] = 0;
+			readArray[3] = 0;
+
 			GPIO_clear_pin(GPIO_B, bit_18);			//** Apaga led verde 	*/	// 1 vez
-			Wait_1_second();							//** Wait 1 seg */
+			//Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_18);			//** Enciende led verde */
-			Wait_1_second();							//** Wait 1 seg */
+			//Wait_1_second();							//** Wait 1 seg */
 			GPIO_clear_pin(GPIO_B, bit_18);			//** Apaga led verde	*/	// 2 vez
-			Wait_1_second();							//** Wait 1 seg */
+			//Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_18);			//** Enciende led verde */
 		}
 
 		if ( (intento == FALSE) && (letra_minus1 == SIZE_CLAVE-1) ) {
 			GPIO_set_pin(GPIO_B, bit_19);			//** Enciende led rojo */ // 1 vez
-			Wait_1_second();							//** Wait 1 seg */
+			//Wait_1_second();							//** Wait 1 seg */
 			GPIO_clear_pin(GPIO_B, bit_19);			//** Apaga led rojo    */
-			Wait_1_second();							//** Wait 1 seg */
+			//Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_19);			//** Enciende led rojo */ // 2 vez
-			Wait_1_second();							//** Wait 1 seg  */
+			//Wait_1_second();							//** Wait 1 seg  */
 			GPIO_clear_pin(GPIO_B, bit_19);			//** Apaga led rojo	   */
 		}
 
@@ -132,7 +143,8 @@ void FSM_control() {
 			current_state = waitSELECT_PROCESO;										// new from FSM_MOTOR
 		}
 		if ( (g_FSM_status_flags.imparOn_A == FALSE) && ((intento == TRUE)) ) {
-			current_state = stop_MOTOR;
+			g_FSM_status_flags.flag_FSM_MOTOR = FALSE;
+			current_state = waitSELECT_PROCESO;
 		}
 		break; // end case waitCLAVE_MOTOR
 
@@ -152,22 +164,27 @@ void FSM_control() {
 			g_FSM_status_flags.imparOn_B = !g_FSM_status_flags.imparOn_B;
 			printf("\nClave_7890_generador correcto!");
 
+			readArray[0] = 0;
+			readArray[1] = 0;
+			readArray[2] = 0;
+			readArray[3] = 0;
+
 			GPIO_clear_pin(GPIO_B, bit_18);			//** Apaga led verde 	*/	// 1 vez
-			Wait_1_second();							//** Wait 1 seg */
+			//Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_18);			//** Enciende led verde */
-			Wait_1_second();							//** Wait 1 seg */
+			//Wait_1_second();							//** Wait 1 seg */
 			GPIO_clear_pin(GPIO_B, bit_18);			//** Apaga led verde	*/	// 2 vez
-			Wait_1_second();							//** Wait 1 seg */
+			//Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_18);			//** Enciende led verde */
 		}
 
 		if ( (intento == FALSE) && (letra_minus1 == SIZE_CLAVE-1) ) {
 			GPIO_set_pin(GPIO_B, bit_19);			//** Enciende led rojo */ // 1 vez
-			Wait_1_second();							//** Wait 1 seg */
+			//Wait_1_second();							//** Wait 1 seg */
 			GPIO_clear_pin(GPIO_B, bit_19);			//** Apaga led rojo    */
-			Wait_1_second();							//** Wait 1 seg */
+			//Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_19);			//** Enciende led rojo */ // 2 vez
-			Wait_1_second();							//** Wait 1 seg  */
+			//Wait_1_second();							//** Wait 1 seg  */
 			GPIO_clear_pin(GPIO_B, bit_19);			//** Apaga led rojo	   */
 		}
 
@@ -177,7 +194,8 @@ void FSM_control() {
 			current_state = waitSELECT_PROCESO;										// new from FSM_GENERADOR
 		}
 		if( (g_FSM_status_flags.imparOn_B == FALSE) && (intento == TRUE) ){
-			current_state = stop_GENERADOR;
+			g_FSM_status_flags.flag_FSM_GENERADOR = FALSE;	//STOP GENERADOR
+			current_state = waitSELECT_PROCESO;
 		}
 		break; // end case waitCLAVE_GENERADOR
 

@@ -27,11 +27,11 @@ typedef enum {
 
 typedef struct{
 	uint32_t out;
-	void(*fptrPort)( gpio_port_name_t , bit_t );//set and clear
+	void(*fptrPort)( gpio_port_name_t , bit_t ); //set and clear
 	uint32_t wait;
 	uint32_t system;
 	uint32_t PIT_N;
-	void (*fptrDelay)(PIT_timer_t ,My_float_pit_t ,My_float_pit_t);//pit delay
+	void (*fptrDelay)(PIT_timer_t , My_float_pit_t , My_float_pit_t); //pit delay
 	uint8_t next[2];
 }State;
 

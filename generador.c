@@ -86,14 +86,11 @@ void DAC0_config( ){
 void Wait_2ms() {
 	uint8_t estado = FALSE;
 	PIT_delay(PIT_1, SYSTEM_CLOCK, Delay_2ms);	// Corre el PIT
-
-	// FUNCIONA BIEN EN DEBUG
-	do {
-		estado = PIT_get_irq_flag_status(PIT_1);
-	} while (estado == FALSE);
-
-	PIT_clear_irq_flag_status(PIT_1);	// Limpiamos bandera de Software
-	PIT_stop(PIT_1);					// Paramos el PIT
+	estado = PIT_get_irq_flag_status(PIT_1);
+	if (estado == FALSE) {
+		PIT_clear_irq_flag_status(PIT_1);	// Limpiamos bandera de Software
+		PIT_stop(PIT_1);					// Paramos el PIT
+	}
 }
 
 void DAC_FSM_signals(void) {
@@ -125,20 +122,19 @@ void DAC_FSM_signals(void) {
 		current_state = current_state->next[sw3_veces];
 		output = current_state->out;
 		encender_LED(output);
-/*
-	if ( (indexElemento >= 0) & (indexElemento < MAX) ){
+
+	if ( (indexElemento >= 0) && (indexElemento < MAX) ){
 		waveElement = current_state->wave[indexElemento];
+//		Wait_2ms();	//** Delay para tiempo de muestreo */
 		DAC_plot(waveElement);
 	}
-*/
-		for(indexElemento = 0; indexElemento<MAX; indexElemento++){
-			waveElement = current_state->wave[indexElemento];
-			Wait_2ms();	//** Delay para tiempo de muestreo */
-			DAC_plot(waveElement);
-		}
 
-		//waveElement = current_state->wave[indexElemento];
-		//DAC_plot(waveElement);
+//		for(indexElemento = 0; indexElemento<MAX; indexElemento++){
+//			waveElement = current_state->wave[indexElemento];
+//			Wait_2ms();	//** Delay para tiempo de muestreo */
+//			DAC_plot(waveElement);
+//		}
+
 		indexElemento++;//** Inyectar siguiente elemento del arreglo de forma correspondiente */
 	}
 }
