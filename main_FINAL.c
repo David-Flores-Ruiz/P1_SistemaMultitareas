@@ -32,6 +32,7 @@ int main(void) {
 	/**Enables and sets a particular interrupt and its priority*/
 	NVIC_enable_interrupt_and_priotity(PIT_CH0_IRQ, PRIORITY_10);
 	NVIC_enable_interrupt_and_priotity(PIT_CH1_IRQ, PRIORITY_10);
+	NVIC_enable_interrupt_and_priotity(PIT_CH2_IRQ, PRIORITY_10);
 	NVIC_enable_interrupt_and_priotity(PORTC_IRQ,PRIORITY_10);	// sw2
 	NVIC_enable_interrupt_and_priotity(PORTA_IRQ,PRIORITY_10);	// sw3
 	NVIC_enable_interrupt_and_priotity(PORTB_IRQ,PRIORITY_10);	// teclado

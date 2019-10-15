@@ -84,13 +84,13 @@ void DAC0_config( ){
 }
 
 void Wait_2ms() {
-	uint8_t estado = FALSE;
-	PIT_delay(PIT_1, SYSTEM_CLOCK, Delay_2ms);	// Corre el PIT
-	estado = PIT_get_irq_flag_status(PIT_1);
-	if (estado == FALSE) {
-		PIT_clear_irq_flag_status(PIT_1);	// Limpiamos bandera de Software
-		PIT_stop(PIT_1);					// Paramos el PIT
-	}
+//	uint8_t estado = FALSE;
+//	PIT_delayFloat(PIT_2, SYSTEM_CLOCK, Delay_2ms);	// Corre el PIT
+//	estado = PIT_get_irq_flag_status(PIT_2);
+//	if (estado == TRUE) {
+//		PIT_clear_irq_flag_status(PIT_2);	// Limpiamos bandera de Software
+//		PIT_stop(PIT_2);					// Paramos el PIT
+//	}
 }
 
 void DAC_FSM_signals(void) {
@@ -123,20 +123,26 @@ void DAC_FSM_signals(void) {
 		output = current_state->out;
 		encender_LED(output);
 
-	if ( (indexElemento >= 0) && (indexElemento < MAX) ){
-		waveElement = current_state->wave[indexElemento];
-//		Wait_2ms();	//** Delay para tiempo de muestreo */
-		DAC_plot(waveElement);
-	}
+		uint8_t estadoPIT_2 = FALSE;
+		estadoPIT_2 = PIT_get_irq_flag_status(PIT_2);
+		if (estadoPIT_2 == TRUE) 	//** Delay para tiempo de muestreo */
+		{
+			if ((indexElemento >= 0) && (indexElemento < MAX)) {
+				waveElement = current_state->wave[indexElemento];
+				DAC_plot(waveElement);
+			}
+			PIT_clear_irq_flag_status(PIT_2);	// Limpiamos bandera de Software
+			indexElemento++;//** Inyectar siguiente elemento del arreglo de forma correspondiente */
+		}
 
 //		for(indexElemento = 0; indexElemento<MAX; indexElemento++){
 //			waveElement = current_state->wave[indexElemento];
 //			Wait_2ms();	//** Delay para tiempo de muestreo */
 //			DAC_plot(waveElement);
 //		}
+//		indexElemento++;//** Inyectar siguiente elemento del arreglo de forma correspondiente */
 
-		indexElemento++;//** Inyectar siguiente elemento del arreglo de forma correspondiente */
-	}
+	} // end if: si no se presiono sw3
 }
 
 void DAC_plot(uint16_t elemento)

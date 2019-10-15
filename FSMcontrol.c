@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include "PIT.h"
 
+#define DEBUG_ON				/* Para proposito de DEBUGG */
+
 static FSM_flags_t g_FSM_status_flags = {0};	// Banderas de activacion de FSM: MOTOR y GENERADOR
 int8_t readArray[4] = { '0', '0', '0', '0' };
 
@@ -21,6 +23,7 @@ void FSM_motor() {
 		Motor_secuencia_master();
 	}
 	if(g_FSM_status_flags.flag_FSM_MOTOR == FALSE) {
+		GPIO_clear_pin(GPIO_E, bit_24);			// OFF -  Motor
 		//Se detiene el motor
 	}
 }
@@ -28,15 +31,18 @@ void FSM_motor() {
 void FSM_generador() {
 	if (g_FSM_status_flags.flag_FSM_GENERADOR == TRUE) {
 		DAC_FSM_signals();
+		PIT_delayFloat(PIT_2, SYSTEM_CLOCK, Delay_2ms);	// Corre el PIT de 2ms
 	}
 	if(g_FSM_status_flags.flag_FSM_GENERADOR == FALSE) {
+		PIT_stop(PIT_2);					// Paramos el PIT
+		DAC_plot(FALSE);
 		// Se detiene la señal
 	}
 }
 
 void Wait_1_second() {
 	uint8_t estado = FALSE;
-	PIT_delay(PIT_1, SYSTEM_CLOCK, Delay_Password);	// Corre el PIT
+	PIT_delayInteger(PIT_1, SYSTEM_CLOCK, Delay_Password);	// Corre el PIT
 
 	// FUNCIONA BIEN EN DEBUG
 	do {
@@ -71,7 +77,9 @@ void FSM_control() {
 	boolean_t intento_A = FALSE;
 	boolean_t intento_B = FALSE;
 	readArray[letra] = TECLADO_read_KEY(GPIO_D);
+#ifdef DEBUG_ON
 	printf("... %c", readArray[letra]);
+#endif
 	letra_minus1 = letra;
 	letra++;
 
@@ -88,7 +96,9 @@ void FSM_control() {
 		intento = TECLADO_comparaClaves(CLAVE_MAESTRA, readArray, SIZE_CLAVE);
 		if (intento) {
 			current_state = waitSELECT_PROCESO;
+#ifdef DEBUG_ON
 			printf("\nCLAVE_MAESTRA correcta!");
+#endif
 			GPIO_set_pin(GPIO_B, bit_18); 			/** Power On: GREEN LED */
 		}
 		break; // end case waitCLAVE_MAESTRA
@@ -103,7 +113,9 @@ void FSM_control() {
 		intento_B = TECLADO_comparaClaves(PROCESO_B, readArray, SIZE_PROCESS);
 		if (intento_B){
 			current_state = waitCLAVE_GENERADOR;
+#ifdef DEBUG_ON
 			printf("\nSelect_B_generador correcta!");
+#endif
 		}
 		break; // end case waitSELECT_PROCESO
 
@@ -119,21 +131,21 @@ void FSM_control() {
 			readArray[3] = 0;
 
 			GPIO_clear_pin(GPIO_B, bit_18);			//** Apaga led verde 	*/	// 1 vez
-			//Wait_1_second();							//** Wait 1 seg */
+			Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_18);			//** Enciende led verde */
-			//Wait_1_second();							//** Wait 1 seg */
+			Wait_1_second();							//** Wait 1 seg */
 			GPIO_clear_pin(GPIO_B, bit_18);			//** Apaga led verde	*/	// 2 vez
-			//Wait_1_second();							//** Wait 1 seg */
+			Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_18);			//** Enciende led verde */
 		}
 
 		if ( (intento == FALSE) && (letra_minus1 == SIZE_CLAVE-1) ) {
 			GPIO_set_pin(GPIO_B, bit_19);			//** Enciende led rojo */ // 1 vez
-			//Wait_1_second();							//** Wait 1 seg */
+			Wait_1_second();							//** Wait 1 seg */
 			GPIO_clear_pin(GPIO_B, bit_19);			//** Apaga led rojo    */
-			//Wait_1_second();							//** Wait 1 seg */
+			Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_19);			//** Enciende led rojo */ // 2 vez
-			//Wait_1_second();							//** Wait 1 seg  */
+			Wait_1_second();							//** Wait 1 seg  */
 			GPIO_clear_pin(GPIO_B, bit_19);			//** Apaga led rojo	   */
 		}
 
@@ -162,7 +174,9 @@ void FSM_control() {
 		intento = TECLADO_comparaClaves(CLAVE_GENERADOR, readArray, SIZE_CLAVE);
 		if(intento){
 			g_FSM_status_flags.imparOn_B = !g_FSM_status_flags.imparOn_B;
+#ifdef DEBUG_ON
 			printf("\nClave_7890_generador correcto!");
+#endif
 
 			readArray[0] = 0;
 			readArray[1] = 0;
@@ -170,21 +184,21 @@ void FSM_control() {
 			readArray[3] = 0;
 
 			GPIO_clear_pin(GPIO_B, bit_18);			//** Apaga led verde 	*/	// 1 vez
-			//Wait_1_second();							//** Wait 1 seg */
+			Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_18);			//** Enciende led verde */
-			//Wait_1_second();							//** Wait 1 seg */
+			Wait_1_second();							//** Wait 1 seg */
 			GPIO_clear_pin(GPIO_B, bit_18);			//** Apaga led verde	*/	// 2 vez
-			//Wait_1_second();							//** Wait 1 seg */
+			Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_18);			//** Enciende led verde */
 		}
 
 		if ( (intento == FALSE) && (letra_minus1 == SIZE_CLAVE-1) ) {
 			GPIO_set_pin(GPIO_B, bit_19);			//** Enciende led rojo */ // 1 vez
-			//Wait_1_second();							//** Wait 1 seg */
+			Wait_1_second();							//** Wait 1 seg */
 			GPIO_clear_pin(GPIO_B, bit_19);			//** Apaga led rojo    */
-			//Wait_1_second();							//** Wait 1 seg */
+			Wait_1_second();							//** Wait 1 seg */
 			GPIO_set_pin(GPIO_B, bit_19);			//** Enciende led rojo */ // 2 vez
-			//Wait_1_second();							//** Wait 1 seg  */
+			Wait_1_second();							//** Wait 1 seg  */
 			GPIO_clear_pin(GPIO_B, bit_19);			//** Apaga led rojo	   */
 		}
 

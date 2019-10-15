@@ -52,11 +52,17 @@ void PIT0_IRQHandler(void)							// ESTE ES MI VECTOR DE INTERRUPCIÓN
 	PIT_clear_interrupt(PIT_0);				// Apago interrupción por HW
 }
 
-//void PIT1_IRQHandler(void)
-//{
-//	g_intrPIT_status_flag.flag_PIT_channel_1 = TRUE;// Enciendo bandera por Software
-//	PIT_clear_interrupt(PIT_1);				// Apago interrupción por HW
-//}
+void PIT1_IRQHandler(void)
+{
+	g_intrPIT_status_flag.flag_PIT_channel_1 = TRUE;// Enciendo bandera por Software
+	PIT_clear_interrupt(PIT_1);				// Apago interrupción por HW
+}
+
+void PIT2_IRQHandler(void)
+{
+	g_intrPIT_status_flag.flag_PIT_channel_2 = TRUE;// Enciendo bandera por Software
+	PIT_clear_interrupt(PIT_2);				// Apago interrupción por HW
+}
 
 void PIT_clock_gating(void)
 {
@@ -108,22 +114,22 @@ void PIT_delayFloat(PIT_timer_t pit_timer, uint32_t system_clock, My_float_pit_t
 void PIT_stop(PIT_timer_t pit_timer)
 {
 	if (PIT_0 == pit_timer) {
-		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TIE_SHIFT); /** Apaga bit TIE y se apagan interrupciones */
-		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_SHIFT); /** Apaga bit TEN y se deshabilita el timer  */
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TIE_MASK); /** Apaga bit TIE y se apagan interrupciones */
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_MASK); /** Apaga bit TEN y se deshabilita el timer  */
 		}
 		if (PIT_1 == pit_timer) {
-		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TIE_SHIFT);
-		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_SHIFT);
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TIE_MASK);
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_MASK);
 
 		}
 		if (PIT_2 == pit_timer) {
-		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TIE_SHIFT);
-		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_SHIFT);
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TIE_MASK);
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_MASK);
 
 		}
 		if (PIT_3 == pit_timer) {
-		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TIE_SHIFT);
-		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_SHIFT);
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TIE_MASK);
+		PIT->CHANNEL[pit_timer].TCTRL &= ~(PIT_TCTRL_TEN_MASK);
 		}
 }
 uint8_t PIT_get_irq_flag_status(PIT_timer_t pit_timer)	// OBTENGO SOFTWARE FLAG
