@@ -12,7 +12,7 @@
 #define SYSTEM_CLOCK (21000000U)
 #define Delay_Password 1		 /** Para blink de los leds */
 
-
+/*Estas definiciones son usadas para realizar los cambios de estado  */
 typedef enum {
 	waitCLAVE_MAESTRA,
 	waitSELECT_PROCESO,
@@ -23,7 +23,7 @@ typedef enum {
 	FSM_GENERADOR,	//**  Activa a la FSM de Generador para generar ondas  */
 	stop_GENERADOR,
 } State_t;
-
+/*Estas definiciones son usadas para realizar los cambios de estado entre claves */
 typedef enum {
 	CLAVE_MAESTRA, PROCESO_A, PROCESO_B, CLAVE_MOTOR, CLAVE_GENERADOR,
 } Password_t;

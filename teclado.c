@@ -51,7 +51,7 @@ boolean_t TECLADO_comparaClaves(Password_t contrasena, int8_t arrayTeclado[], ui
 	switch (contrasena)
 	{
 		case CLAVE_MAESTRA:
-			for (letra = 0; letra < word_width; letra++) {
+			for (letra = CERO_N; letra < word_width; letra++) {
 				if (array_claveMAESTRA[letra] == arrayTeclado[letra]) {
 					letter_success++;
 				}
@@ -67,7 +67,7 @@ boolean_t TECLADO_comparaClaves(Password_t contrasena, int8_t arrayTeclado[], ui
 			break;	// end case CLAVE_MAESTRA
 
 	case PROCESO_A:
-		for (letra = 0; letra <= word_width; letra++) {
+		for (letra = CERO_N; letra <= word_width; letra++) {
 			if (array_processA[letra] == arrayTeclado[letra]) {
 				letter_success++;
 			}
@@ -99,7 +99,7 @@ boolean_t TECLADO_comparaClaves(Password_t contrasena, int8_t arrayTeclado[], ui
 		break;	// end case PROCESO_B
 
 	case CLAVE_MOTOR:
-		for (letra = 0; letra <= word_width; letra++) {
+		for (letra = CERO_N; letra <= word_width; letra++) {
 			if (array_clave_MOTOR[letra] == arrayTeclado[letra]) {
 				letter_success++;
 			}
@@ -115,7 +115,7 @@ boolean_t TECLADO_comparaClaves(Password_t contrasena, int8_t arrayTeclado[], ui
 		break;	// end case CLAVE_MOTOR
 
 	case CLAVE_GENERADOR:
-		for (letra = 0; letra <= word_width; letra++) {
+		for (letra = CERO_N; letra <= word_width; letra++) {
 			if (array_clave_WAVEGEN[letra] == arrayTeclado[letra]) {
 				letter_success++;
 			}

@@ -49,7 +49,7 @@ void Secuencia1(void){
 	estado = PIT_get_irq_flag_status(PIT_Ch);
 	if (estado)
 	{
-		current_state = FSM_Moore[current_state].next[0];
+		current_state = FSM_Moore[current_state].next[CERO_N];
 		//PIT_clear_irq_flag_status(PIT_Ch);
 		PIT_clear_irq_flag_status(PIT_Ch);	// Limpiamos bandera de Software
 		PIT_stop(PIT_0);
@@ -73,7 +73,7 @@ void Secuencia2(void)
 	estado = PIT_get_irq_flag_status(PIT_Ch);
 	if (estado)
 	{
-		current_state = FSM_Moore2[current_state].next[0];
+		current_state = FSM_Moore2[current_state].next[CERO_N];
 		PIT_clear_irq_flag_status(PIT_Ch);
 	}
 }
@@ -97,7 +97,7 @@ void Motor_secuencia_master(void)
 
 	if (status)
 	{
-		current_state = FSM_Moore_motor[current_state].next[0];	//en vez de cero puede ser sw;
+		current_state = FSM_Moore_motor[current_state].next[CERO_N];	//en vez de cero puede ser sw;
 		GPIO_clear_irq_status(GPIO_C);
 	}
 }

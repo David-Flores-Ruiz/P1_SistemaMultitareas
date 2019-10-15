@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include "PIT.h"
 
-#define DEBUG_ON				/* Para proposito de DEBUGG */
+#define DEBUG_OFF				/* Para proposito de DEBUGG */
 
 static FSM_flags_t g_FSM_status_flags = {0};	// Banderas de activacion de FSM: MOTOR y GENERADOR
 int8_t readArray[4] = { '0', '0', '0', '0' };
@@ -71,24 +71,22 @@ void Wait_1_second() {
 
 void FSM_control() {
 	static State_t current_state = waitCLAVE_MAESTRA; // Estado Inicial del Sistema
-	static uint32_t letra = 0;
-	uint32_t letra_minus1 = 0;
+	static uint32_t letra = CERO_N;
+	uint32_t letra_minus1 = CERO_N;
 	boolean_t intento = FALSE;	//** Los intentos inician como fallidos */
 	boolean_t intento_A = FALSE;
 	boolean_t intento_B = FALSE;
 	readArray[letra] = TECLADO_read_KEY(GPIO_D);
-#ifdef DEBUG_ON
-	printf("... %c", readArray[letra]);
-#endif
+
 	letra_minus1 = letra;
 	letra++;
 
 	if(letra == SIZE_CLAVE){
-		letra = 0;
+		letra = CERO_N;
 	}
 
 	if(letra == SIZE_PROCESS && current_state==waitSELECT_PROCESO){
-		letra = 0;
+		letra = CERO_N;
 	}
 
 	switch (current_state) {
@@ -96,9 +94,7 @@ void FSM_control() {
 		intento = TECLADO_comparaClaves(CLAVE_MAESTRA, readArray, SIZE_CLAVE);
 		if (intento) {
 			current_state = waitSELECT_PROCESO;
-#ifdef DEBUG_ON
-			printf("\nCLAVE_MAESTRA correcta!");
-#endif
+
 			GPIO_set_pin(GPIO_B, bit_18); 			/** Power On: GREEN LED */
 		}
 		break; // end case waitCLAVE_MAESTRA
@@ -107,15 +103,13 @@ void FSM_control() {
 		intento_A = TECLADO_comparaClaves(PROCESO_A, readArray, SIZE_PROCESS);
 		if (intento_A){
 			current_state = waitCLAVE_MOTOR;
-			printf("\nSelect_A_motor correcto!");
+
 		}
 
 		intento_B = TECLADO_comparaClaves(PROCESO_B, readArray, SIZE_PROCESS);
 		if (intento_B){
 			current_state = waitCLAVE_GENERADOR;
-#ifdef DEBUG_ON
-			printf("\nSelect_B_generador correcta!");
-#endif
+
 		}
 		break; // end case waitSELECT_PROCESO
 
@@ -123,12 +117,12 @@ void FSM_control() {
 		intento = TECLADO_comparaClaves(CLAVE_MOTOR, readArray, SIZE_CLAVE);
 		if (intento == TRUE) {
 			g_FSM_status_flags.imparOn_A = !g_FSM_status_flags.imparOn_A;
-			printf("\nClave_4567_motor correcto!");
 
-			readArray[0] = 0;
-			readArray[1] = 0;
-			readArray[2] = 0;
-			readArray[3] = 0;
+
+			readArray[0] = CERO_N;
+			readArray[1] = CERO_N;
+			readArray[2] = CERO_N;
+			readArray[3] = CERO_N;
 
 			GPIO_clear_pin(GPIO_B, bit_18);			//** Apaga led verde 	*/	// 1 vez
 			Wait_1_second();							//** Wait 1 seg */
@@ -174,14 +168,12 @@ void FSM_control() {
 		intento = TECLADO_comparaClaves(CLAVE_GENERADOR, readArray, SIZE_CLAVE);
 		if(intento){
 			g_FSM_status_flags.imparOn_B = !g_FSM_status_flags.imparOn_B;
-#ifdef DEBUG_ON
-			printf("\nClave_7890_generador correcto!");
-#endif
 
-			readArray[0] = 0;
-			readArray[1] = 0;
-			readArray[2] = 0;
-			readArray[3] = 0;
+
+			readArray[0] = CERO_N;
+			readArray[1] = CERO_N;
+			readArray[2] = CERO_N;
+			readArray[3] = CERO_N;
 
 			GPIO_clear_pin(GPIO_B, bit_18);			//** Apaga led verde 	*/	// 1 vez
 			Wait_1_second();							//** Wait 1 seg */

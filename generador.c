@@ -105,15 +105,15 @@ void DAC_FSM_signals(void) {
 	if (statusINT_sw3) {
 		sw3_veces++;
 		GPIO_clear_irq_status(GPIO_A);
-		indexElemento = 0;
+		indexElemento = CERO_N;
 	}
 
 	if (sw3_veces == 3) {
-		sw3_veces = 0;
+		sw3_veces = CERO_N;
 	}
 
 	if (indexElemento == MAX){
-		indexElemento = 0;
+		indexElemento = CERO_N;
 	}
 
 	if (sw3_veces != -1) {
